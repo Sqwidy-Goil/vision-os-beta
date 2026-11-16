@@ -1,126 +1,238 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#070b13">
-<title>iPhone Vision — Prototype V0.1</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Studio caméra + mains — iPhone, iPad, Android</title>
 <style>
-:root{--cyan:#63e8ff;--blue:#478bff;--glass:rgba(12,20,34,.72);--line:rgba(150,220,255,.24);--white:#effaff}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050811;color:var(--white);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:none}
-#app{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 35%,#13253a,#050811 70%)}
-#camera{position:absolute;width:100%;height:100%;object-fit:cover;display:none;transform:scaleX(-1);background:#080e19}
-#camera.active{display:block}
-#fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:32px;background:radial-gradient(circle at 55% 40%,rgba(38,104,143,.3),transparent 45%),linear-gradient(145deg,#101d31,#050811 70%)}
-#fallback .room{width:min(90vw,430px);height:min(65vh,520px);border:1px solid #6de7ff44;border-radius:22px;position:relative;background:linear-gradient(150deg,#172c43aa,#0b1424cc);box-shadow:0 0 60px #2ab8ff18,inset 0 0 40px #5ddfff0c}
-.room:before{content:"";position:absolute;left:0;right:0;bottom:18%;height:1px;background:#8aeaff66;box-shadow:0 0 20px #63e8ff}
-.room:after{content:"";position:absolute;top:0;bottom:18%;left:50%;width:1px;background:#8aeaff22}
-#fallback p{position:absolute;bottom:25px;left:20px;right:20px;color:#a9c8dc;font-size:13px;line-height:1.5}
-#top{position:absolute;top:env(safe-area-inset-top,12px);left:0;right:0;padding:14px 17px;display:flex;justify-content:space-between;align-items:center;pointer-events:none}
-.brand{font-size:13px;letter-spacing:2px;font-weight:800}.brand span{color:var(--cyan)}
-.pill{border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(18px);border-radius:30px;padding:8px 12px;font-size:11px;color:#c9e9f5}
-#objects{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-.obj{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);pointer-events:auto;touch-action:none;cursor:grab;filter:drop-shadow(0 8px 18px #0009);user-select:none}
-.obj.selected .orb{outline:1px solid #8bf2ff;box-shadow:0 0 25px #52dfff66}
-.orb{width:76px;height:76px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#eaffff,#6ae9ff 16%,#2476bc 48%,#10233e 78%);box-shadow:inset -10px -12px 22px #06152b,0 0 24px #40d9ff55;position:relative}
-.cube{width:68px;height:68px;background:linear-gradient(135deg,#b8faff,#2799dc 48%,#123a70);transform:rotate(30deg) skew(-5deg,-5deg);border:1px solid #bafaffaa;box-shadow:0 0 24px #40d9ff55}
-.ring{width:82px;height:82px;border:8px solid #69eaff;border-radius:50%;box-shadow:0 0 20px #40d9ff99,inset 0 0 15px #40d9ff66;transform:rotateX(65deg)}
-.objlabel{text-align:center;font-size:10px;color:#e5faff;margin-top:12px;text-shadow:0 2px 6px #000}
-#crosshair{position:absolute;left:50%;top:50%;width:22px;height:22px;transform:translate(-50%,-50%);pointer-events:none;opacity:.7}
-#crosshair:before,#crosshair:after{content:"";position:absolute;background:#b9f7ff;box-shadow:0 0 8px #63e8ff}
-#crosshair:before{width:22px;height:1px;top:10px}#crosshair:after{height:22px;width:1px;left:10px}
-#bottom{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);left:14px;right:14px;display:flex;flex-direction:column;gap:10px}
-.panel{background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:12px;backdrop-filter:blur(22px);box-shadow:0 10px 35px #0005}
-#status{font-size:11px;color:#a8c8d9;display:flex;justify-content:space-between;gap:8px;margin:0 3px 10px}
-.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-button{border:1px solid #8adfff35;background:#172a40;color:#e9faff;border-radius:15px;padding:12px 5px;font-size:11px;font-weight:650;min-height:54px}
-button:active{transform:scale(.97);background:#214565}
-button.primary{background:linear-gradient(135deg,#1a9cc1,#2866c8);border-color:#83efff88;color:white}
-button .ico{display:block;font-size:19px;margin-bottom:5px}
-#hint{font-size:11px;text-align:center;color:#9bb8ca;padding:0 8px}
-#toast{position:absolute;top:22%;left:50%;transform:translateX(-50%);background:#10243aee;border:1px solid #70e8ff66;border-radius:20px;padding:10px 15px;font-size:12px;opacity:0;transition:.25s;pointer-events:none;white-space:nowrap}
-#toast.show{opacity:1}
-#permission{position:absolute;inset:0;background:#050811dd;display:flex;align-items:center;justify-content:center;padding:25px;z-index:5}
-#permission .card{width:min(100%,380px);padding:25px;border:1px solid var(--line);border-radius:25px;background:#101d2eee;text-align:center;box-shadow:0 20px 70px #0009}
-h1{font-size:25px;margin:5px 0 8px;letter-spacing:-.7px}h1 em{font-style:normal;color:var(--cyan)}
-#permission p{font-size:13px;color:#a9c5d8;line-height:1.55;margin:12px 0 20px}
-#permission button{width:100%;font-size:14px;padding:15px}
-#permission small{display:block;color:#718fa4;font-size:10px;line-height:1.5;margin-top:14px}
-#help{position:absolute;right:15px;top:68px;width:35px;height:35px;min-height:0;padding:0;border-radius:50%;font-size:15px}
-#scaleRow{display:none;align-items:center;gap:10px;padding:7px 4px 0;font-size:11px;color:#b6d9e8}
-#scaleRow input{flex:1;accent-color:#63e8ff}
-#scaleRow.visible{display:flex}
+:root{--bg:#05070d;--panel:rgba(9,14,24,.86);--line:rgba(255,255,255,.13);--text:#eef2ff;--muted:#9aa6bf;--a:#5eead4;--b:#818cf8;--warn:#fbbf24;--bad:#f87171}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif}
+#camera{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);background:#000}
+#overlay{position:fixed;inset:0;pointer-events:none}
+#hand{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+.ui{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:14px;pointer-events:none}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.badge{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 13px;font-size:12px;font-weight:650;backdrop-filter:blur(16px)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--a);box-shadow:0 0 0 4px rgba(94,234,212,.15)}
+#status{color:var(--muted);font-weight:500}
+.actions{display:flex;gap:7px;flex-wrap:wrap;pointer-events:auto}
+button{appearance:none;border:1px solid var(--line);background:rgba(13,18,30,.86);color:var(--text);border-radius:12px;padding:9px 12px;font:inherit;font-size:12.5px;font-weight:650;cursor:pointer;backdrop-filter:blur(16px);transition:.15s}
+button:hover{border-color:rgba(94,234,212,.5)}button:active{transform:scale(.97)}
+button.primary{background:linear-gradient(135deg,var(--a),var(--b));color:#06121a;border-color:transparent}
+button.danger{color:#fecaca;border-color:rgba(248,113,113,.4)}
+.bottom{display:flex;justify-content:center;pointer-events:none}
+.panel{width:min(760px,100%);pointer-events:auto;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:12px;backdrop-filter:blur(20px)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
+.title{font-size:13.5px;font-weight:750}.sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.card{background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:14px;padding:9px}
+.label{font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:800;margin-bottom:7px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}.chip{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:6px 9px;font-size:11.5px;font-weight:650}
+.chip.active{background:linear-gradient(135deg,var(--a),var(--b));color:#06121a;border-color:transparent}
+.swatches{display:flex;flex-wrap:wrap;gap:6px}.swatch{width:24px;height:24px;border-radius:50%;border:2px solid transparent;padding:0;cursor:pointer}.swatch.active{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.18)}
+input[type=range]{width:100%;accent-color:var(--a)}
+#hint{margin-top:9px;text-align:center;font-size:11.5px;color:var(--muted);line-height:1.4}
+#cursor{position:fixed;width:22px;height:22px;border:2px solid var(--a);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;opacity:0;transition:opacity .12s;z-index:50}
+#cursor.pinch{border-color:var(--warn);box-shadow:0 0 0 6px rgba(251,191,36,.18)}
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,5,10,.8);backdrop-filter:blur(12px);z-index:60;padding:18px}
+.modal.hidden{display:none}
+.card-modal{width:min(520px,100%);background:#0b1120;border:1px solid var(--line);border-radius:20px;padding:20px;text-align:center}
+h1{margin:0 0 9px;font-size:20px}p{margin:0 0 15px;color:var(--muted);font-size:13px;line-height:1.5}
+@media(max-width:640px){.grid{grid-template-columns:1fr}.actions{justify-content:flex-end}}
 </style>
 </head>
 <body>
-<div id="app">
-  <video id="camera" autoplay playsinline muted></video>
-  <div id="fallback"><div class="room"></div><p>MODE DÉMONSTRATION<br>Active la caméra pour voir les objets dans ton environnement.</p></div>
-  <div id="objects"></div><div id="crosshair"></div>
-  <div id="top"><div class="brand">iPHONE <span>VISION</span></div><div class="pill">PROTOTYPE V0.1</div></div>
-  <button id="help" aria-label="Aide">?</button>
-  <div id="toast"></div>
-  <div id="bottom">
-    <div class="panel">
-      <div id="status"><span id="mode">MODE DÉMONSTRATION</span><span id="orientation">Orientation : —</span></div>
-      <div class="tools">
-        <button id="cameraBtn" class="primary"><span class="ico">◎</span>Caméra</button>
-        <button id="placeBtn"><span class="ico">＋</span>Placer</button>
-        <button id="changeBtn"><span class="ico">◇</span>Objet</button>
-        <button id="deleteBtn"><span class="ico">×</span>Supprimer</button>
-      </div>
-      <div id="scaleRow"><span>Taille</span><input id="scale" type="range" min=".5" max="2.2" step=".1" value="1"><span id="scaleValue">1×</span></div>
+
+<video id="camera" autoplay muted playsinline></video>
+<canvas id="hand"></canvas>
+<canvas id="overlay"></canvas>
+<div id="cursor"></div>
+
+<div class="ui">
+  <div class="top">
+    <div class="badge"><div class="dot"></div><span>Studio mains</span><span id="status">Initialisation…</span></div>
+    <div class="actions">
+      <button id="save">Sauvegarder</button>
+      <button class="danger" id="clear">Effacer</button>
+      <button class="primary" id="quickLook">Voir en AR réelle</button>
     </div>
-    <div id="hint">Appuie sur « Placer », puis fais glisser l'objet pour le déplacer.</div>
+  </div>
+
+  <div class="bottom">
+    <div class="panel">
+      <div class="row">
+        <div>
+          <div class="title">Objets virtuels contrôlés à la main</div>
+          <div class="sub">Pince pouce + index pour appuyer sur un bouton. Pince un objet pour le déplacer.</div>
+        </div>
+        <div class="sub" id="count">0 objet</div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="label">Objet</div>
+          <div class="chips" id="shapes">
+            <button class="chip active" data-shape="cube">Cube</button>
+            <button class="chip" data-shape="sphere">Sphère</button>
+            <button class="chip" data-shape="cone">Cône</button>
+            <button class="chip" data-shape="torus">Anneau</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="label">Couleur</div>
+          <div class="swatches" id="colors"></div>
+        </div>
+
+        <div class="card">
+          <div class="label">Taille</div>
+          <input id="size" type="range" min="30" max="180" value="70">
+          <div class="sub" id="sizeLabel">70 px</div>
+        </div>
+      </div>
+
+      <div id="hint">Active la caméra, montre ta main, puis pince pouce + index sur un bouton.</div>
+    </div>
   </div>
 </div>
-<div id="permission">
-  <div class="card">
-    <div style="font-size:36px;margin-bottom:7px">◈</div>
-    <h1>iPhone <em>Vision</em></h1>
-    <div style="color:#80b9d1;font-size:11px;letter-spacing:2px">SPATIAL ENGINE · V0.1</div>
-    <p>Bienvenue dans le premier prototype. Autorise l'accès à la caméra pour afficher des objets virtuels par-dessus l'image de ta pièce.</p>
-    <button class="primary" id="start">Lancer l'expérience</button>
-    <small>La caméra reste sur ton appareil. Cette démo ne crée pas encore un ancrage spatial ARKit : les objets sont superposés à l'image et peuvent être déplacés au doigt.</small>
+
+<div class="modal" id="permission">
+  <div class="card-modal">
+    <h1>Caméra et suivi des mains</h1>
+    <p>
+      Cette page demande l’accès à la caméra pour détecter les mains et les doigts directement dans le navigateur.
+      Le traitement est effectué sur l’appareil. Sur iPhone, l’objet peut aussi être ouvert dans la vraie pièce avec AR Quick Look.
+    </p>
+    <button class="primary" id="start">Autoriser la caméra</button>
   </div>
 </div>
-<script>
-const $=id=>document.getElementById(id);
-const video=$('camera'), fallback=$('fallback'), objects=$('objects');
-let stream=null, kind=0, selected=null, count=0, deviceMotion=false;
-const types=['orb','cube','ring'], names=['Sphère énergétique','Cube holographique','Anneau spatial'];
-function toast(t){$('toast').textContent=t;$('toast').classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('toast').classList.remove('show'),2100)}
-function setSelected(el){document.querySelectorAll('.obj').forEach(x=>x.classList.remove('selected'));selected=el;if(el){el.classList.add('selected');$('scaleRow').classList.add('visible');$('scale').value=el.dataset.scale||1;$('scaleValue').textContent=(+$('scale').value).toFixed(1)+'×'}else $('scaleRow').classList.remove('visible')}
-function makeObject(){
- count++;const el=document.createElement('div');el.className='obj selected';el.dataset.scale='1';el.dataset.kind=kind;
- const shape=document.createElement('div');shape.className=types[kind];
- const label=document.createElement('div');label.className='objlabel';label.textContent=names[kind]+' '+count;
- el.append(shape,label);objects.append(el);el.style.left=(50+(Math.random()*18-9))+'%';el.style.top=(43+(Math.random()*12-6))+'%';setSelected(el);dragify(el);toast('Objet placé dans la vue');return el;
+
+<script type="module">
+import { FilesetResolver, HandLandmarker } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+
+const video = document.getElementById("camera");
+const handCanvas = document.getElementById("hand");
+const objectCanvas = document.getElementById("overlay");
+const handCtx = handCanvas.getContext("2d");
+const objectCtx = objectCanvas.getContext("2d");
+const cursor = document.getElementById("cursor");
+const status = document.getElementById("status");
+const hint = document.getElementById("hint");
+const count = document.getElementById("count");
+const sizeInput = document.getElementById("size");
+const sizeLabel = document.getElementById("sizeLabel");
+
+const colors = [0x5eead4, 0x818cf8, 0xf472b6, 0xfbbf24, 0x34d399, 0xffffff];
+const colorNames = ["Turquoise", "Indigo", "Rose", "Ambre", "Vert", "Blanc"];
+const STORAGE_KEY = "studio-mains-objets-v1";
+const HAND_CONNECTIONS = [
+  [0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],
+  [9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]
+];
+
+let landmarker = null;
+let lastVideoTime = -1;
+let currentShape = "cube";
+let currentColor = colors[0];
+let currentSize = 70;
+let objects = [];
+let dragging = null;
+let lastPinchTime = 0;
+
+function setStatus(text, color = "#9aa6bf") {
+  status.textContent = text;
+  status.style.color = color;
 }
-function dragify(el){
- let sx=0,sy=0,ox=0,oy=0,moved=false;
- el.addEventListener('pointerdown',e=>{e.preventDefault();setSelected(el);sx=e.clientX;sy=e.clientY;ox=el.offsetLeft;oy=el.offsetTop;const r=objects.getBoundingClientRect();ox=(parseFloat(el.style.left)/100)*r.width;oy=(parseFloat(el.style.top)/100)*r.height;moved=false;el.setPointerCapture(e.pointerId)});
- el.addEventListener('pointermove',e=>{if(!el.hasPointerCapture(e.pointerId))return;const r=objects.getBoundingClientRect();let x=ox+e.clientX-sx,y=oy+e.clientY-sy;if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>3)moved=true;el.style.left=Math.max(8,Math.min(92,x/r.width*100))+'%';el.style.top=Math.max(12,Math.min(78,y/r.height*100))+'%'});
- el.addEventListener('pointerup',()=>{if(moved)toast('Position ajustée')});
+
+function setHint(text) {
+  hint.textContent = text;
 }
-async function startCamera(){
- try{
-  if(!navigator.mediaDevices?.getUserMedia)throw new Error('Caméra non disponible dans ce navigateur.');
-  stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});
-  video.srcObject=stream;await video.play();video.classList.add('active');fallback.style.display='none';$('mode').textContent='CAMÉRA ACTIVE · SUPERPOSITION 2D';$('cameraBtn').innerHTML='<span class="ico">◉</span>Arrêter';toast('Caméra activée');
- }catch(e){toast(e.name==='NotAllowedError'?'Accès caméra refusé. Autorise-le dans Réglages.':e.message||'Impossible d’ouvrir la caméra.');}
+
+function resizeCanvases() {
+  const width = innerWidth;
+  const height = innerHeight;
+  handCanvas.width = width * devicePixelRatio;
+  handCanvas.height = height * devicePixelRatio;
+  objectCanvas.width = width * devicePixelRatio;
+  objectCanvas.height = height * devicePixelRatio;
+  handCanvas.style.width = width + "px";
+  handCanvas.style.height = height + "px";
+  objectCanvas.style.width = width + "px";
+  objectCanvas.style.height = height + "px";
+  handCtx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  objectCtx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  drawObjects();
 }
-function stopCamera(){if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;video.classList.remove('active');fallback.style.display='flex';$('mode').textContent='MODE DÉMONSTRATION';$('cameraBtn').innerHTML='<span class="ico">◎</span>Caméra'}
-$('start').onclick=async()=>{$('permission').style.display='none';await startCamera();if(!stream)toast('Tu peux quand même tester en mode démo')};
-$('cameraBtn').onclick=()=>stream?stopCamera():startCamera();
-$('placeBtn').onclick=()=>makeObject();
-$('changeBtn').onclick=()=>{kind=(kind+1)%types.length;if(selected){const shape=selected.querySelector(':first-child');shape.className=types[kind];selected.dataset.kind=kind;selected.querySelector('.objlabel').textContent=names[kind]+' '+count;toast('Objet changé')}else toast('Prochain objet : '+names[kind])};
-$('deleteBtn').onclick=()=>{if(selected){selected.remove();setSelected(null);toast('Objet supprimé')}else toast('Sélectionne d’abord un objet')};
-$('scale').oninput=e=>{if(!selected)return;const v=+e.target.value;selected.dataset.scale=v;selected.querySelector(':first-child').style.transform=types[+selected.dataset.kind]==='cube'?`rotate(30deg) skew(-5deg,-5deg) scale(${v})`:`scale(${v})`;$('scaleValue').textContent=v.toFixed(1)+'×'};
-$('help').onclick=()=>toast('Prototype : caméra + objets déplaçables au doigt');
-objects.addEventListener('pointerdown',e=>{if(e.target===objects)setSelected(null)});
-function orientation(){if(typeof DeviceOrientationEvent!=='undefined'){window.addEventListener('deviceorientation',e=>{if(e.alpha==null)return;deviceMotion=true;$('orientation').textContent='Cap : '+Math.round(e.alpha)+'°';},{once:false})}}
-orientation();
-</script>
-</body>
-</html>
+
+function hex(color) {
+  return "#" + color.toString(16).padStart(6, "0");
+}
+
+function saveScene(message = true) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(objects));
+  if (message) {
+    setStatus("Scène sauvegardée", "#5eead4");
+    setTimeout(() => setStatus("Suivi des mains actif", "#5eead4"), 1600);
+  }
+}
+
+function loadScene() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+    objects = JSON.parse(saved);
+    updateCount();
+    setStatus(objects.length + " objet(s) restauré(s)", "#5eead4");
+  } catch {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+}
+
+function updateCount() {
+  count.textContent = objects.length + (objects.length === 1 ? " objet" : " objets");
+}
+
+function addObjectAt(x, y) {
+  objects.push({
+    id: crypto.randomUUID(),
+    shape: currentShape,
+    color: currentColor,
+    size: currentSize,
+    x: x / innerWidth,
+    y: y / innerHeight
+  });
+  updateCount();
+  saveScene(false);
+  drawObjects();
+}
+
+function objectAt(x, y) {
+  for (let i = objects.length - 1; i >= 0; i--) {
+    const object = objects[i];
+    const ox = object.x * innerWidth;
+    const oy = object.y * innerHeight;
+    const radius = object.size * .65;
+
+    if (Math.hypot(x - ox, y - oy) < radius) return object;
+  }
+  return null;
+}
+
+function drawObject(object) {
+  const x = object.x * innerWidth;
+  const y = object.y * innerHeight;
+  const size = object.size;
+  const color = hex(object.color);
+
+  objectCtx.save();
+  objectCtx.translate(x, y);
+  objectCtx.fillStyle = color;
+  objectCtx.strokeStyle = "rgba(255,255,255,.75)";
+  objectCtx.lineWidth = 2;
+  objectCtx.shadowColor = color;
+  objectCtx.shadowBlur = 18;
+
+  if (object.shape === "cube") {
+    objectCtx.fillRect(-size / 2, -size / 2, size, size);
+  
