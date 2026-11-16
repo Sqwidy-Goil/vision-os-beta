@@ -3,59 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Studio caméra + mains — iPhone, iPad, Android</title>
+<title>Studio caméra + mains — tactile</title>
 <style>
-:root{--bg:#05070d;--panel:rgba(9,14,24,.86);--line:rgba(255,255,255,.13);--text:#eef2ff;--muted:#9aa6bf;--a:#5eead4;--b:#818cf8;--warn:#fbbf24;--bad:#f87171}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif}
+:root{--bg:#05070d;--panel:rgba(9,14,24,.88);--line:rgba(255,255,255,.14);--text:#eef2ff;--muted:#9aa6bf;--a:#5eead4;--b:#818cf8;--warn:#fbbf24;--bad:#f87171}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
 #camera{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);background:#000}
-#overlay{position:fixed;inset:0;pointer-events:none}
-#hand{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
-.ui{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:14px;pointer-events:none}
-.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
-.badge{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 13px;font-size:12px;font-weight:650;backdrop-filter:blur(16px)}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--a);box-shadow:0 0 0 4px rgba(94,234,212,.15)}
+#hand,#overlay{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+.ui{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:12px;pointer-events:none}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap}
+.badge{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:650;backdrop-filter:blur(16px)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--a)}
 #status{color:var(--muted);font-weight:500}
-.actions{display:flex;gap:7px;flex-wrap:wrap;pointer-events:auto}
-button{appearance:none;border:1px solid var(--line);background:rgba(13,18,30,.86);color:var(--text);border-radius:12px;padding:9px 12px;font:inherit;font-size:12.5px;font-weight:650;cursor:pointer;backdrop-filter:blur(16px);transition:.15s}
-button:hover{border-color:rgba(94,234,212,.5)}button:active{transform:scale(.97)}
+.actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;pointer-events:auto}
+button{appearance:none;-webkit-appearance:none;border:1px solid var(--line);background:rgba(13,18,30,.9);color:var(--text);border-radius:14px;padding:12px 14px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;min-height:44px;min-width:44px;touch-action:manipulation}
 button.primary{background:linear-gradient(135deg,var(--a),var(--b));color:#06121a;border-color:transparent}
 button.danger{color:#fecaca;border-color:rgba(248,113,113,.4)}
-.bottom{display:flex;justify-content:center;pointer-events:none}
+button:disabled{opacity:.45}
+.bottom{display:flex;justify-content:center;pointer-events:none;padding-bottom:env(safe-area-inset-bottom)}
 .panel{width:min(760px,100%);pointer-events:auto;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:12px;backdrop-filter:blur(20px)}
-.row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
-.title{font-size:13.5px;font-weight:750}.sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.title{font-size:14px;font-weight:800}.sub{font-size:12px;color:var(--muted);margin-top:2px}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.card{background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:14px;padding:9px}
-.label{font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:800;margin-bottom:7px}
-.chips{display:flex;flex-wrap:wrap;gap:5px}.chip{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:6px 9px;font-size:11.5px;font-weight:650}
+.card{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:9px}
+.label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;margin-bottom:7px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:10px 12px;font-size:13px;font-weight:700;min-height:40px}
 .chip.active{background:linear-gradient(135deg,var(--a),var(--b));color:#06121a;border-color:transparent}
-.swatches{display:flex;flex-wrap:wrap;gap:6px}.swatch{width:24px;height:24px;border-radius:50%;border:2px solid transparent;padding:0;cursor:pointer}.swatch.active{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.18)}
-input[type=range]{width:100%;accent-color:var(--a)}
-#hint{margin-top:9px;text-align:center;font-size:11.5px;color:var(--muted);line-height:1.4}
-#cursor{position:fixed;width:22px;height:22px;border:2px solid var(--a);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;opacity:0;transition:opacity .12s;z-index:50}
-#cursor.pinch{border-color:var(--warn);box-shadow:0 0 0 6px rgba(251,191,36,.18)}
-.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,5,10,.8);backdrop-filter:blur(12px);z-index:60;padding:18px}
+.swatches{display:flex;flex-wrap:wrap;gap:8px}.swatch{width:38px;height:38px;border-radius:50%;border:2px solid transparent;padding:0}.swatch.active{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.2)}
+input[type=range]{width:100%;height:34px;accent-color:var(--a)}
+#hint{margin-top:8px;text-align:center;font-size:12px;color:var(--muted);line-height:1.4}
+#cursor{position:fixed;width:30px;height:30px;border:3px solid var(--a);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;opacity:0;z-index:50}
+#cursor.pinch{border-color:var(--warn);box-shadow:0 0 0 8px rgba(251,191,36,.2)}
+#debug{position:fixed;left:10px;bottom:10px;max-width:90vw;background:rgba(0,0,0,.75);color:#ffd7d7;font:12px/1.35 monospace;padding:8px;border-radius:10px;display:none;z-index:70;white-space:pre-wrap}
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,5,10,.85);backdrop-filter:blur(12px);z-index:60;padding:18px}
 .modal.hidden{display:none}
-.card-modal{width:min(520px,100%);background:#0b1120;border:1px solid var(--line);border-radius:20px;padding:20px;text-align:center}
-h1{margin:0 0 9px;font-size:20px}p{margin:0 0 15px;color:var(--muted);font-size:13px;line-height:1.5}
-@media(max-width:640px){.grid{grid-template-columns:1fr}.actions{justify-content:flex-end}}
+.modal-card{width:min(520px,100%);background:#0b1120;border:1px solid var(--line);border-radius:20px;padding:20px;text-align:center}
+h1{margin:0 0 10px;font-size:21px}p{margin:0 0 16px;color:var(--muted);font-size:13.5px;line-height:1.5}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<video id="camera" autoplay muted playsinline></video>
+<video id="camera" autoplay muted playsinline webkit-playsinline></video>
 <canvas id="hand"></canvas>
 <canvas id="overlay"></canvas>
 <div id="cursor"></div>
 
 <div class="ui">
   <div class="top">
-    <div class="badge"><div class="dot"></div><span>Studio mains</span><span id="status">Initialisation…</span></div>
+    <div class="badge"><div class="dot"></div><span>Studio mains</span><span id="status">Prêt</span></div>
     <div class="actions">
+      <button id="cameraButton">Activer la caméra</button>
       <button id="save">Sauvegarder</button>
       <button class="danger" id="clear">Effacer</button>
-      <button class="primary" id="quickLook">Voir en AR réelle</button>
     </div>
   </div>
 
@@ -63,8 +63,8 @@ h1{margin:0 0 9px;font-size:20px}p{margin:0 0 15px;color:var(--muted);font-size:
     <div class="panel">
       <div class="row">
         <div>
-          <div class="title">Objets virtuels contrôlés à la main</div>
-          <div class="sub">Pince pouce + index pour appuyer sur un bouton. Pince un objet pour le déplacer.</div>
+          <div class="title">Objets contrôlés au doigt</div>
+          <div class="sub">Touche un bouton pour le choisir. Touche la caméra pour poser un objet. Maintiens un objet pour le déplacer.</div>
         </div>
         <div class="sub" id="count">0 objet</div>
       </div>
@@ -87,30 +87,31 @@ h1{margin:0 0 9px;font-size:20px}p{margin:0 0 15px;color:var(--muted);font-size:
 
         <div class="card">
           <div class="label">Taille</div>
-          <input id="size" type="range" min="30" max="180" value="70">
-          <div class="sub" id="sizeLabel">70 px</div>
+          <input id="size" type="range" min="40" max="200" value="80">
+          <div class="sub" id="sizeLabel">80 px</div>
         </div>
       </div>
 
-      <div id="hint">Active la caméra, montre ta main, puis pince pouce + index sur un bouton.</div>
+      <div id="hint">Appuie sur « Activer la caméra ». Ensuite, montre ta main : pince pouce + index pour appuyer sur un bouton.</div>
     </div>
   </div>
 </div>
 
 <div class="modal" id="permission">
-  <div class="card-modal">
-    <h1>Caméra et suivi des mains</h1>
+  <div class="modal-card">
+    <h1>Caméra nécessaire</h1>
     <p>
-      Cette page demande l’accès à la caméra pour détecter les mains et les doigts directement dans le navigateur.
-      Le traitement est effectué sur l’appareil. Sur iPhone, l’objet peut aussi être ouvert dans la vraie pièce avec AR Quick Look.
+      Appuie sur le bouton ci-dessous : le navigateur doit immédiatement afficher la demande d’accès à la caméra.
+      Le suivi des mains est effectué sur l’appareil ; aucune image n’est envoyée sur Internet.
     </p>
     <button class="primary" id="start">Autoriser la caméra</button>
+    <p id="permissionError" style="margin-top:12px;color:#f87171;display:none"></p>
   </div>
 </div>
 
-<script type="module">
-import { FilesetResolver, HandLandmarker } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+<div id="debug"></div>
 
+<script type="module">
 const video = document.getElementById("camera");
 const handCanvas = document.getElementById("hand");
 const objectCanvas = document.getElementById("overlay");
@@ -122,23 +123,33 @@ const hint = document.getElementById("hint");
 const count = document.getElementById("count");
 const sizeInput = document.getElementById("size");
 const sizeLabel = document.getElementById("sizeLabel");
+const debug = document.getElementById("debug");
+const permissionError = document.getElementById("permissionError");
 
 const colors = [0x5eead4, 0x818cf8, 0xf472b6, 0xfbbf24, 0x34d399, 0xffffff];
 const colorNames = ["Turquoise", "Indigo", "Rose", "Ambre", "Vert", "Blanc"];
-const STORAGE_KEY = "studio-mains-objets-v1";
-const HAND_CONNECTIONS = [
+const STORAGE_KEY = "studio-mains-objets-v2";
+const CONNECTIONS = [
   [0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],
   [9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]
 ];
 
 let landmarker = null;
+let stream = null;
 let lastVideoTime = -1;
 let currentShape = "cube";
 let currentColor = colors[0];
-let currentSize = 70;
+let currentSize = 80;
 let objects = [];
 let dragging = null;
 let lastPinchTime = 0;
+let touchActive = false;
+
+function log(message) {
+  console.error(message);
+  debug.style.display = "block";
+  debug.textContent = String(message?.message || message);
+}
 
 function setStatus(text, color = "#9aa6bf") {
   status.textContent = text;
@@ -149,19 +160,20 @@ function setHint(text) {
   hint.textContent = text;
 }
 
-function resizeCanvases() {
+function resize() {
   const width = innerWidth;
   const height = innerHeight;
-  handCanvas.width = width * devicePixelRatio;
-  handCanvas.height = height * devicePixelRatio;
-  objectCanvas.width = width * devicePixelRatio;
-  objectCanvas.height = height * devicePixelRatio;
-  handCanvas.style.width = width + "px";
-  handCanvas.style.height = height + "px";
-  objectCanvas.style.width = width + "px";
-  objectCanvas.style.height = height + "px";
-  handCtx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-  objectCtx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  const ratio = Math.min(devicePixelRatio || 1, 2);
+
+  for (const canvas of [handCanvas, objectCanvas]) {
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+  }
+
+  handCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  objectCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
   drawObjects();
 }
 
@@ -169,11 +181,19 @@ function hex(color) {
   return "#" + color.toString(16).padStart(6, "0");
 }
 
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
+}
+
 function saveScene(message = true) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(objects));
-  if (message) {
-    setStatus("Scène sauvegardée", "#5eead4");
-    setTimeout(() => setStatus("Suivi des mains actif", "#5eead4"), 1600);
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(objects));
+    if (message) {
+      setStatus("Scène sauvegardée", "#5eead4");
+      setTimeout(() => setStatus(landmarker ? "Suivi des mains actif" : "Caméra active"), 1500);
+    }
+  } catch (error) {
+    log(error);
   }
 }
 
@@ -181,11 +201,13 @@ function loadScene() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return;
-    objects = JSON.parse(saved);
+    objects = JSON.parse(saved) || [];
     updateCount();
-    setStatus(objects.length + " objet(s) restauré(s)", "#5eead4");
-  } catch {
+    drawObjects();
+    if (objects.length) setStatus(objects.length + " objet(s) restauré(s)", "#5eead4");
+  } catch (error) {
     localStorage.removeItem(STORAGE_KEY);
+    log(error);
   }
 }
 
@@ -193,46 +215,22 @@ function updateCount() {
   count.textContent = objects.length + (objects.length === 1 ? " objet" : " objets");
 }
 
-function addObjectAt(x, y) {
-  objects.push({
-    id: crypto.randomUUID(),
-    shape: currentShape,
-    color: currentColor,
-    size: currentSize,
-    x: x / innerWidth,
-    y: y / innerHeight
-  });
-  updateCount();
-  saveScene(false);
-  drawObjects();
-}
-
 function objectAt(x, y) {
   for (let i = objects.length - 1; i >= 0; i--) {
     const object = objects[i];
     const ox = object.x * innerWidth;
     const oy = object.y * innerHeight;
-    const radius = object.size * .65;
-
-    if (Math.hypot(x - ox, y - oy) < radius) return object;
+    if (Math.hypot(x - ox, y - oy) < object.size * .7) return object;
   }
   return null;
 }
 
-function drawObject(object) {
-  const x = object.x * innerWidth;
-  const y = object.y * innerHeight;
-  const size = object.size;
-  const color = hex(object.color);
-
-  objectCtx.save();
-  objectCtx.translate(x, y);
-  objectCtx.fillStyle = color;
-  objectCtx.strokeStyle = "rgba(255,255,255,.75)";
-  objectCtx.lineWidth = 2;
-  objectCtx.shadowColor = color;
-  objectCtx.shadowBlur = 18;
-
-  if (object.shape === "cube") {
-    objectCtx.fillRect(-size / 2, -size / 2, size, size);
-  
+function addObjectAt(x, y) {
+  objects.push({
+    id: uid(),
+    shape: currentShape,
+    color: currentColor,
+    size: currentSize,
+    x: Math.min(.98, Math.max(.02, x / innerWidth)),
+    y: Math.min(.98, Math.max(.02, y / innerHeight))
+  }
