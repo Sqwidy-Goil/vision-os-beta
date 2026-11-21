@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>vis0n m0bil MR_EXPERIENCE</title>
+    <style>
+        :root {
+            --neon-blue: #00d4ff;
+            --bg-dark: #0a0a12;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        /* Écran de démarrage & Permissions */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 18, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            text-align: center;
+            padding: 20px;
+        }
+        .btn-start {
+            padding: 20px 40px;
+            font-size: 1.5rem;
+            background: var(--neon-blue);
+            border: none;
+            border-radius: 50px;
+            color: black;
+            font-weight: bold;
+            box-shadow: 0 0 20px var(--neon-blue);
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        /* UI de Statut */
+        .hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--neon-blue);
+            pointer-events: none;
+        }
+        .status-text {
+            color: var(--neon-blue);
+            font-weight: bold;
+            font-family: monospace;
+        }
+        /* Feed Caméra */
+        #camera-feed {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 150px;
+            border: 2px solid var(--neon-blue);
+            border-radius: 10px;
+            background: black;
+            z-index: 5;
+            transform: scale(0.8);
+        }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+
+    <div id="overlay">
+        <h1>👁️ visi0n m0bil MR</h1>
+        <p>Expérience de Réalité Mixte</p>
+        <p style="font-size: 0.8rem; color: #888;">Accès Caméra + Gyroscope requis</p>
+        <button class="btn-start" id="btn-launch">Démarrer l'expérience</button>
+    </div>
+
+    <div class="hud">
+        <div class="status-text" id="status">Système : En attente...</div>
+    </div>
+
+    <div id="camera-feed"></div>
+
+    <!-- Scripts Externes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+    <script>
+        // --- Configuration & Variables ---
+        const sceneConfig = {
+            bg: 0x0a0a12,
+            fog: 0x0a0a12,
+            floor: 0x1a1a2e,
+            wall: 0x8b7355,
+            neon: 0x00d4ff
+        };
+
+        let scene, camera, renderer, floor, walls = [];
+        let hands, videoElement, statusElement;
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+        let floatingMenu, menuButton;
+
+        // --- Initialisation ---
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(sceneConfig.bg);
+            scene.fog = new THREE.Fog(sceneConfig.fog, 10, 50);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 2, 8);
+            camera.lookAt(0, 2, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            document.body.appendChild(renderer.domElement);
+
+            // Lumières
+            const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambient);
+            const pointLight = new THREE.PointLight(0x00d4ff, 1, 50);
+            pointLight.position.set(0, 5, 5);
+            scene.add(pointLight);
+
+            // Sol et Murs
+            const floorGeo = new THREE.PlaneGeometry(50, 50);
+            floor = new THREE.Mesh(floorGeo, new THREE.MeshStandardMaterial({ color: sceneConfig.floor }));
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
+
+            const wallGeo = new THREE.BoxGeometry(50, 15, 1);
+            const wallMat = new THREE.MeshStandardMaterial({ color: sceneConfig.wall });
+            const positions = [[0, 7.5, -25], [0, 7.5, 25], [-25, 7.5, 0], [25, 7.5, 0]];
+            positions.forEach(pos => {
+                const wall = new THREE.Mesh(wallGeo, wallMat);
+                wall.position.set(...pos);
+                scene.add(wall);
+                walls.push(wall);
+            });
+
+            // --- MENU MIXTE (Simulé) ---
+            // Création d'un panneau flottant dans l'espace 3D
+            const menuGeo = new THREE.BoxGeometry(3, 2, 0.1);
+            const menuMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, emissive: 0x00d4ff, emissiveIntensity: 0.5 });
+            floatingMenu = new THREE.Mesh(menuGeo, menuMat);
+            floatingMenu.position.set(0, 3, -2);
+            scene.add(floatingMenu);
+
+            // Bouton sur le menu
+            const btnGeo = new THREE.BoxGeometry(1.5, 0.5, 0.11);
+            const btnMat = new THREE.MeshStandardMaterial({ color: 0x00d4ff });
+            menuButton = new THREE.Mesh(btnGeo, btnMat);
+            menuButton.position.set(0, 0, 0.06); // Légèrement devant le menu
+            floatingMenu.add(menuButton);
+
+            statusElement = document.getElementById('status');
+            videoElement = document.createElement('video');
+            videoElement.style.display = 'none';
+            videoElement.setAttribute('playsinline', '');
+            videoElement.setAttribute('muted', '');
+            document.body.appendChild(videoElement);
+
+            setupMediaPipe();
+            setupGyroscope();
+            animate();
+        }
+
+        // --- Gyroscope ---
+        function setupGyroscope() {
+            if (window.DeviceOrientationEvent) {
+                window.addEventListener('deviceorientation', (e) => {
+                    // On utilise l'inclinaison pour faire pivoter légèrement la scène
+                    // Cela donne l'impression que le monde bouge avec votre tête/téléphone
+                    camera.rotation.y = -e.beta * (Math.PI / 180);
+                    camera.rotation.x = -e.gamma * (Math.PI / 180);
+                }, true);
+            }
+        }
+
+        // --- MediaPipe Hands ---
+        function setupMediaPipe() {
+            if (typeof Hands !== 'undefined') {
+                hands = new Hands({
+                    maxNumHands: 1,
+                    minDetectionConfidence: 0.8,
+                    minTrackingConfidence: 0.8
+                });
+
+                hands.onResults((results) => {
+                    if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                        const landmark = results.multiHandLandmarks[0][8]; // Index Tip
+                        
+                        // On projette la position de la main en 3D
+                        // On simule un curseur qui suit l'index
+                        const targetX = (landmark.x - 0.5) * 20;
+                        const targetY = -(landmark.y - 0.5) * 10 + 3;
+                        const targetZ = -2;
+
+                        // Interaction de proximité (Clic simulé)
+                        const dist = Math.sqrt(
+                            Math.pow(landmark.x - 0.5, 2) + 
+                            Math.pow(landmark.y - 0.5, 2)
+                        );
+
+                        // Si l'index est proche du centre du bouton (simulé)
+                        if (dist < 0.15) {
+                            menuButton.material.emissive.setHex(0xff0000);
+                            statusElement.innerText = "ACTION : Bouton activé !";
+                            if(Math.random() > 0.95) { // Déclencheur d'action
+                                alert("Action Réalité Mixte Confirmée !");
+                                menuButton.material.emissive.setHex(0x00d4ff);
+                            }
+                        } else {
+                            menuButton.material.emissive.setHex(0x00d4ff);
+                            statusElement.innerText = "Main détectée - Approchez l'index du bouton";
+                        }
+                    }
+                });
+
+                const cameraHelper = new Camera(videoElement, {
+                    onFrame: async () => {
+                        await hands.send({image: videoElement});
+                    },
+                    width: 1280,
+                    height: 720
+                });
+                cameraHelper.start();
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            // Animation légère du menu pour le rendre "vivant"
+            floatingMenu.rotation.y = Math.sin(Date.now() * 0.001) * 0.1;
+            renderer.render(scene, camera);
+        }
+
+        // --- Gestionnaire du bouton de lancement (Nécessaire pour iOS) ---
+        document.getElementById('btn-launch').addEventListener('click', async () => {
+            // Demande de permission pour iOS
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                const permission = await DeviceOrientationEvent.requestPermission();
+                if (permission !== 'granted') {
+                    alert("Permission Gyroscope refusée.");
+                }
+            }
+            
+            document.getElementById('overlay').style.display = 'none';
+            init();
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
