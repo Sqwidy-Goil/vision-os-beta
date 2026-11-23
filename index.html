@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>VISI0N SPATIAL</title>
+<meta name="description" content="A spatial computing web environment for iPhone.">
+<meta name="theme-color" content="#05070d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="VISI0N">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icons/icon-180.png">
+<link rel="stylesheet" href="./src/styles/main.css">
+</head>
+<body>
+<div id="stage" aria-live="polite">
+  <canvas id="scene"></canvas>
+  <div id="space"></div>
+  <div id="windows"></div>
+  <div id="hud">
+    <button id="envBtn" class="glass chip">Environment</button>
+    <button id="trackBtn" class="glass chip">Tracking</button>
+    <button id="camBtn" class="glass chip">Camera</button>
+  </div>
+  <nav id="dock" class="glass dock" aria-label="Application dock"></nav>
+  <div id="toasts"></div>
+</div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
