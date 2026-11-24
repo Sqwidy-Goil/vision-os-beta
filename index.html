@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
@@ -7,12 +7,21 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="VISI0N">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="description" content="VISI0N SPATIAL — iPhone spatial computing PWA with Liquid Glass">
 <title>VISI0N SPATIAL</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icon.svg">
+
+<!-- IMPORT MAP OBLIGATOIRE pour Three.js sur Safari -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
 <style>
 :root{
   --bg-1:#05070d;--bg-2:#0a1020;--bg-accent:rgba(50,90,180,.35);
@@ -26,9 +35,17 @@
 [data-env=light]{--bg-1:#eaf0ff;--bg-2:#f7faff;--bg-accent:rgba(120,160,240,.3);--accent:#2c62ff;--accent-soft:rgba(44,98,255,.14);--text:#0a1530;--text-muted:rgba(10,21,48,.55);--shA:rgba(30,50,100,.28);--shB:rgba(30,50,100,.16);--edge:.9;--spec:.65;--glass-lo:.1;--glass-hi:.22}
 [data-env=workspace]{--bg-1:#0f0d0a;--bg-2:#1a1610;--bg-accent:rgba(220,160,80,.28);--accent:#ffc177;--accent-soft:rgba(255,193,119,.16);--spec:.38}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0;width:100%;height:100vh;height:100dvh;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",system-ui,sans-serif;color:var(--text);background:var(--bg-1);-webkit-user-select:none;user-select:none;touch-action:none;transition:color .3s}
+html,body{margin:0;padding:0;width:100%;height:100vh;height:100dvh;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",system-ui,sans-serif;color:var(--text);background:var(--bg-1);-webkit-user-select:none;user-select:none;touch-action:none}
 button{font-family:inherit;color:inherit}
-#env{position:fixed;inset:0;z-index:0;overflow:hidden;background:radial-gradient(140% 90% at 15% 0%,var(--bg-accent),transparent 55%),radial-gradient(120% 100% at 90% 100%,rgba(140,80,220,.18),transparent 60%),linear-gradient(160deg,var(--bg-2),var(--bg-1));transition:background .7s cubic-bezier(.2,.7,.2,1),transform .25s ease-out;will-change:transform}
+
+/* ===== COUCHE CAMÉRA AR ===== */
+#ar-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;display:none;background:#000;transform:scaleX(-1)} /* miroir pour caméra frontale */
+body.ar-mode #ar-video{display:block}
+#ar-video.rear{transform:none} /* caméra arrière non miroir */
+
+/* ===== ENV DE FALLBACK (quand pas d'AR) ===== */
+#env{position:fixed;inset:0;z-index:0;overflow:hidden;background:radial-gradient(140% 90% at 15% 0%,var(--bg-accent),transparent 55%),radial-gradient(120% 100% at 90% 100%,rgba(140,80,220,.18),transparent 60%),linear-gradient(160deg,var(--bg-2),var(--bg-1));transition:opacity .5s}
+body.ar-mode #env{opacity:0;pointer-events:none}
 #env::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:44px 44px;mask-image:radial-gradient(ellipse at center,#000 30%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse at center,#000 30%,transparent 80%);pointer-events:none}
 .orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;animation:drift linear infinite;will-change:transform}
 .orb.a{width:55vmin;height:55vmin;left:-10vmin;top:-8vmin;background:radial-gradient(circle,var(--accent-soft),transparent 70%);animation-duration:34s}
@@ -36,10 +53,15 @@ button{font-family:inherit;color:inherit}
 .orb.c{width:40vmin;height:40vmin;left:55%;top:40%;background:radial-gradient(circle,rgba(255,180,120,.16),transparent 70%);animation-duration:58s}
 @keyframes drift{0%{transform:translate3d(0,0,0) scale(1)}33%{transform:translate3d(6vmin,-4vmin,0) scale(1.08)}66%{transform:translate3d(-4vmin,6vmin,0) scale(.96)}100%{transform:translate3d(0,0,0) scale(1)}}
 @media (prefers-reduced-motion:reduce){.orb{animation:none}}
+
+/* ===== GLASS ===== */
 .glass{position:relative;background:linear-gradient(135deg,rgba(var(--tint),var(--glass-hi)) 0%,rgba(var(--tint),var(--glass-lo)) 42%,rgba(var(--tint),calc(var(--glass-hi) * .7)) 100%);backdrop-filter:blur(var(--blur)) saturate(var(--sat)) brightness(1.06);-webkit-backdrop-filter:blur(var(--blur)) saturate(var(--sat)) brightness(1.06);border-radius:var(--r);border:.5px solid rgba(var(--tint),calc(var(--edge) * .6));box-shadow:inset 0 1px 0 0 rgba(var(--tint),var(--edge)),inset 0 -1px 0 0 rgba(var(--tint),calc(var(--edge) * .35)),0 18px 44px -12px var(--shA),0 40px 80px -30px var(--shB);overflow:hidden;isolation:isolate}
 .glass::before{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(120% 80% at 18% -10%,rgba(255,255,255,var(--spec)),transparent 55%),radial-gradient(90% 60% at 100% 110%,rgba(255,255,255,calc(var(--spec) * .4)),transparent 60%);mix-blend-mode:screen;pointer-events:none}
 .glass::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(135deg,rgba(255,255,255,.85),rgba(255,255,255,.05) 25%,transparent 50%,rgba(255,255,255,.05) 75%,rgba(255,255,255,.55));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:calc(var(--edge) * .9)}
-#stage{position:fixed;inset:0;z-index:2;pointer-events:none}
+
+/* ===== SPATIAL LAYER (suit la caméra) ===== */
+#spatial{position:fixed;inset:0;z-index:2;pointer-events:none;transition:transform .08s linear;will-change:transform}
+#stage{position:absolute;inset:0;pointer-events:none}
 .window{position:absolute;top:0;left:0;min-width:220px;min-height:150px;width:340px;height:420px;pointer-events:auto;display:flex;flex-direction:column;will-change:transform,width,height;transition:box-shadow .2s}
 .window.focused{box-shadow:inset 0 1px 0 0 rgba(var(--tint),var(--edge)),inset 0 -1px 0 0 rgba(var(--tint),calc(var(--edge) * .35)),0 24px 60px -14px var(--shA),0 60px 120px -40px var(--shB)}
 .wh{display:flex;align-items:center;gap:8px;padding:12px 14px;cursor:grab;border-bottom:.5px solid rgba(255,255,255,.1);touch-action:none;flex-shrink:0}
@@ -52,15 +74,23 @@ button{font-family:inherit;color:inherit}
 .wb{flex:1;overflow:auto;padding:14px;font-size:14px;line-height:1.5;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .wres{position:absolute;right:2px;bottom:2px;width:18px;height:18px;cursor:nwse-resize;opacity:.5;color:var(--text);background-image:linear-gradient(135deg,transparent 40%,currentColor 40%,currentColor 48%,transparent 48%,transparent 56%,currentColor 56%,currentColor 64%,transparent 64%,transparent 72%,currentColor 72%,currentColor 80%,transparent 80%);z-index:2}
 .wres:hover{opacity:.9}
+
+/* ===== STATUS ===== */
 #status{position:fixed;top:0;left:0;right:0;z-index:5;padding:env(safe-area-inset-top) 18px 4px;height:calc(28px + env(safe-area-inset-top));display:flex;align-items:flex-end;justify-content:space-between;font-size:12px;font-weight:600;color:var(--text);pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.4)}
 #status .l,#status .r{display:flex;align-items:center;gap:8px}
 #status .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+#status .dot.live{background:#ff4444;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ===== DOCK ===== */
 #dock{position:fixed;z-index:6;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:8px;padding:10px 12px;border-radius:24px;pointer-events:auto;max-width:calc(100vw - 20px);overflow-x:auto;overflow-y:visible;scrollbar-width:none}
 #dock::-webkit-scrollbar{display:none}
 .dock-app{width:54px;height:54px;min-width:54px;border-radius:15px;border:.5px solid rgba(255,255,255,.22);background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.04));display:grid;place-items:center;cursor:pointer;padding:0;color:var(--text);font-size:22px;transition:transform .18s cubic-bezier(.2,.8,.2,1),background .18s;position:relative}
 .dock-app:hover,.dock-app:active{transform:translateY(-6px) scale(1.06);background:linear-gradient(160deg,rgba(255,255,255,.26),rgba(255,255,255,.08))}
 .dock-app:active{transform:translateY(-3px) scale(.98)}
 .dock-app .label{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:500;color:var(--text-muted);white-space:nowrap;pointer-events:none}
+
+/* ===== UI ELEMENTS ===== */
 .row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:.5px solid rgba(255,255,255,.08)}
 .row:last-child{border-bottom:0}
 .row label{flex:1;font-size:13px}
@@ -75,6 +105,8 @@ button{font-family:inherit;color:inherit}
 .clock-time{font-size:52px;font-weight:200;letter-spacing:-2px;font-variant-numeric:tabular-nums;background:linear-gradient(180deg,var(--text),var(--text-muted));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .clock-date{font-size:13px;color:var(--text-muted)}
 .notes-ta{width:100%;height:100%;resize:none;border:0;outline:0;background:transparent;color:var(--text);font-family:inherit;font-size:14px;line-height:1.6;padding:0}
+
+/* ===== GAME ===== */
 .game-wrap{position:relative;width:100%;height:100%;overflow:hidden}
 .game-hud{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:8px 12px;font-size:13px;font-weight:600;z-index:2;pointer-events:none}
 .target{position:absolute;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,var(--accent) 40%,rgba(125,178,255,.2) 100%);box-shadow:0 0 24px var(--accent),inset 0 0 8px rgba(255,255,255,.6);cursor:pointer;animation:pop .38s cubic-bezier(.2,1.4,.3,1);transform-origin:center}
@@ -82,6 +114,8 @@ button{font-family:inherit;color:inherit}
 .game-over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.35);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);gap:10px;z-index:3}
 .game-over h2{margin:0;font-size:22px;font-weight:300}
 .game-over .score{font-size:42px;font-weight:200;color:var(--accent)}
+
+/* ===== KEYBOARD ===== */
 #keyboard{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:10px 8px calc(10px + env(safe-area-inset-bottom));display:none;flex-direction:column;gap:6px;transform:translateY(100%);transition:transform .26s cubic-bezier(.2,.8,.2,1);border-radius:var(--r) var(--r) 0 0}
 #keyboard.show{display:flex;transform:translateY(0)}
 .krow{display:flex;gap:5px;justify-content:center}
@@ -89,24 +123,30 @@ button{font-family:inherit;color:inherit}
 .krow button:active{background:rgba(255,255,255,.3)}
 .krow button.wide{max-width:100px;font-size:13px}
 .krow button.space{flex:4;max-width:240px}
-.krow button.active{background:var(--accent-soft);color:var(--accent)}
-#hint{position:fixed;top:calc(60px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:7;padding:10px 16px;font-size:12px;color:var(--text-muted);text-align:center;border-radius:14px;max-width:90vw;animation:fadeIn .6s ease .4s both;pointer-events:none}
-@keyframes fadeIn{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}
-#hand-cursor{position:fixed;top:0;left:0;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;background:rgba(255,255,255,.6);box-shadow:0 0 12px rgba(255,255,255,.8);pointer-events:none;z-index:100;display:none;transition:background .12s,transform .04s}
-#hand-cursor.pinch{background:var(--accent);box-shadow:0 0 24px var(--accent);transform:scale(1.3)}
+
+/* ===== HAND CURSOR ===== */
+#hand-cursor{position:fixed;top:0;left:0;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;background:rgba(255,255,255,.7);box-shadow:0 0 16px rgba(255,255,255,.9);pointer-events:none;z-index:100;display:none;transition:background .12s,transform .04s;border:2px solid rgba(255,255,255,.9)}
+#hand-cursor.pinch{background:var(--accent);box-shadow:0 0 28px var(--accent);transform:scale(1.35);border-color:var(--accent)}
+
 .err{color:#ff8080;font-size:12px;margin:8px 0}
 .muted{color:var(--text-muted);font-size:12px;line-height:1.5}
 input[type=url],input[type=text]{width:100%;padding:8px 12px;border-radius:10px;border:.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:var(--text);font-size:13px;outline:none;font-family:inherit}
 input[type=url]:focus,input[type=text]:focus{border-color:var(--accent)}
+
+/* ===== MODE AR : UI plus contrastée ===== */
+body.ar-mode .window{--glass-lo:.12;--glass-hi:.28;--blur:32px;--sat:160%}
+body.ar-mode #dock{--glass-lo:.15;--glass-hi:.32}
+body.ar-mode #status{text-shadow:0 1px 4px rgba(0,0,0,.9),0 0 12px rgba(0,0,0,.5)}
 </style>
 </head>
 <body data-env="dark">
+
+<video id="ar-video" autoplay playsinline muted></video>
 <div id="env" aria-hidden="true"><div class="orb a"></div><div class="orb b"></div><div class="orb c"></div></div>
-<div id="status"><div class="l"><span class="dot"></span><span id="st-env">DARK SPACE</span></div><div class="r"><span id="st-time">--:--</span></div></div>
-<div id="hint" class="glass" role="status">Drag windows by the title bar • Tap an app • Settings ⚙ controls everything</div>
-<div id="stage"></div>
-<nav id="dock" class="glass" aria-label="Application dock"></nav>
-<div id="keyboard" class="glass" aria-label="Virtual keyboard">
+<div id="status"><div class="l"><span class="dot" id="live-dot"></span><span id="st-env">DARK SPACE</span></div><div class="r"><span id="st-time">--:--</span></div></div>
+<div id="spatial"><div id="stage"></div></div>
+<nav id="dock" class="glass" aria-label="Dock"></nav>
+<div id="keyboard" class="glass" aria-label="Clavier">
   <div class="krow" data-krow="qwertyuiop"></div>
   <div class="krow" data-krow="asdfghjkl"></div>
   <div class="krow" data-krow="zxcvbnm"></div>
@@ -115,23 +155,24 @@ input[type=url]:focus,input[type=text]:focus{border-color:var(--accent)}
 <div id="hand-cursor"></div>
 
 <script type="module">
-/* ================================================================
-   VISI0N SPATIAL — runtime
-   ================================================================ */
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const stage=$('#stage'),dock=$('#dock');
+const stage=$('#stage'),dock=$('#dock'),arVideo=$('#ar-video'),spatial=$('#spatial'),handCursor=$('#hand-cursor');
 
-/* ---------- STATE ---------- */
+/* ================================================================
+   STATE GLOBAL
+   ================================================================ */
 const S={
   zTop:10,
   env:'dark',quality:'balanced',
-  cam:{stream:null,owner:null},
-  orient:{enabled:false,alpha:0,beta:0,gamma:0,offset:{alpha:0,beta:0,gamma:0},handler:null},
-  hand:{active:false,landmarker:null,video:null,stream:null,lastT:0,wasPinch:false}
+  ar:{active:false,stream:null,facing:'user',handMode:false,lastPinch:0},
+  hand:{landmarker:null,video:null,stream:null,active:false,wasPinch:false,dragWin:null,dragOffset:{x:0,y:0}},
+  orient:{enabled:false,handler:null,base:null,current:{a:0,b:0,g:0}}
 };
 
-/* ---------- WINDOW MANAGER ---------- */
+/* ================================================================
+   WINDOW MANAGER
+   ================================================================ */
 let winCount=0;
 function focus(win){win.style.zIndex=++S.zTop;$$('.window.focused').forEach(w=>w.classList.remove('focused'));win.classList.add('focused')}
 
@@ -141,12 +182,12 @@ function makeWindow({title,width=340,height=420,body='',onMount,resizable=true})
   const off=(winCount-1)%6;
   w.style.width=width+'px';w.style.height=height+'px';
   w.style.transform=`translate(${24+off*26}px,${80+off*22}px)`;
-  w.innerHTML=`<div class="wh"><span class="t">${title}</span><div class="wc"><button class="wbtn close" aria-label="Close">×</button></div></div><div class="wb"></div>${resizable?'<div class="wres" aria-hidden="true"></div>':''}`;
+  w.innerHTML=`<div class="wh"><span class="t">${title}</span><div class="wc"><button class="wbtn close" aria-label="Fermer">×</button></div></div><div class="wb"></div>${resizable?'<div class="wres" aria-hidden="true"></div>':''}`;
   const bodyEl=$('.wb',w);
   if(typeof body==='string')bodyEl.innerHTML=body;else bodyEl.appendChild(body);
   stage.appendChild(w);focus(w);
 
-  /* drag */
+  /* drag souris/touch */
   const h=$('.wh',w);let ds=null;
   h.addEventListener('pointerdown',e=>{if(e.target.closest('.wbtn'))return;focus(w);const m=new DOMMatrixReadOnly(getComputedStyle(w).transform);ds={sx:e.clientX,sy:e.clientY,ox:m.m41,oy:m.m42,id:e.pointerId};h.setPointerCapture(e.pointerId)});
   h.addEventListener('pointermove',e=>{if(!ds||ds.id!==e.pointerId)return;w.style.transform=`translate(${ds.ox+e.clientX-ds.sx}px,${ds.oy+e.clientY-ds.sy}px)`});
@@ -160,14 +201,391 @@ function makeWindow({title,width=340,height=420,body='',onMount,resizable=true})
     const er=()=>{rs=null};rh.addEventListener('pointerup',er);rh.addEventListener('pointercancel',er);
   }
 
-  /* close */
-  $('.wbtn.close',w).addEventListener('click',()=>{ if(typeof w._cleanup==='function')w._cleanup(); w.remove(); });
+  $('.wbtn.close',w).addEventListener('click',()=>{if(typeof w._cleanup==='function')w._cleanup();w.remove()});
   w.addEventListener('pointerdown',()=>focus(w));
   if(typeof onMount==='function')onMount(bodyEl,w);
   return w;
 }
 
-/* ---------- KEYBOARD ---------- */
+/* ================================================================
+   DÉTECTION DE MAIN + DRAG DE FENÊTRE
+   ================================================================ */
+function screenFromLandmark(lm,videoEl){
+  // lm.x/lm.y normalisés [0,1] dans le flux vidéo
+  // mapping sur l'écran en tenant compte du miroir (selfie) et de object-fit:cover
+  const vw=videoEl.videoWidth||720, vh=videoEl.videoHeight||1280;
+  const sw=innerWidth, sh=innerHeight;
+  const scale=Math.max(sw/vw,sh/vh);
+  const dw=vw*scale, dh=vh*scale;
+  const dx=(sw-dw)/2, dy=(sh-dh)/2;
+  let x=lm.x*dw+dx;
+  let y=lm.y*dh+dy;
+  // caméra selfie = miroir horizontal
+  if(S.ar.facing==='user') x=sw-x;
+  return {x,y};
+}
+
+const Hand={
+  async enable(){
+    if(S.hand.active)return;
+    try{
+      // 1) init MediaPipe
+      const vision=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.9');
+      const fileset=await vision.FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.9/wasm');
+      const lm=await vision.HandLandmarker.createFromOptions(fileset,{
+        baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',delegate:'GPU'},
+        runningMode:'VIDEO',numHands:1
+      });
+      // 2) ouvrir le flux caméra et le brancher SUR la vidéo AR si le mode AR est actif
+      let stream, video;
+      if(S.ar.active && S.ar.stream){
+        // réutilise le flux AR
+        stream=S.ar.stream;
+        video=arVideo;
+      }else{
+        stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:S.ar.facing},audio:false});
+        video=document.createElement('video');
+        video.playsInline=true;video.muted=true;video.autoplay=true;
+        video.srcObject=stream;
+        await video.play().catch(()=>{});
+        // si pas de mode AR, on affiche un petit preview (optionnel) — ici on reste discret
+      }
+      S.hand.landmarker=lm;S.hand.video=video;S.hand.stream=stream;S.hand.active=true;
+      handCursor.style.display='block';
+      Hand.loop();
+    }catch(e){S.hand.active=false;throw e}
+  },
+  disable(){
+    S.hand.active=false;
+    if(S.hand.stream && !S.ar.active){S.hand.stream.getTracks().forEach(t=>t.stop())}
+    S.hand.stream=null;S.hand.landmarker=null;S.hand.video=null;S.hand.wasPinch=false;S.hand.dragWin=null;
+    handCursor.style.display='none';handCursor.classList.remove('pinch');
+  },
+  loop(){
+    if(!S.hand.active)return;
+    const {landmarker,video}=S.hand;
+    if(video && video.readyState>=2){
+      try{
+        const res=landmarker.detectForVideo(video,performance.now());
+        if(res.landmarks && res.landmarks.length){
+          const lms=res.landmarks[0];
+          const tip=lms[8], thumb=lms[4];
+          const pos=screenFromLandmark(tip,video);
+          handCursor.style.display='block';
+          handCursor.style.transform=`translate(${pos.x}px,${pos.y}px)`;
+
+          const dist=Math.hypot(tip.x-thumb.x,tip.y-thumb.y);
+          const pinch=dist<0.055;
+          handCursor.classList.toggle('pinch',pinch);
+
+          // ---- pinch down = click OR drag start
+          if(pinch && !S.hand.wasPinch){
+            const el=document.elementFromPoint(pos.x,pos.y);
+            if(el && el!==handCursor){
+              // trouver la fenêtre parente
+              const win=el.closest('.window');
+              if(win){
+                focus(win);
+                // drag seulement si on pince la barre de titre
+                if(el.closest('.wh')){
+                  const m=new DOMMatrixReadOnly(getComputedStyle(win).transform);
+                  S.hand.dragWin=win;
+                  S.hand.dragOffset={x:m.m41-pos.x,y:m.m42-pos.y};
+                }else{
+                  // clic simple sur bouton
+                  el.dispatchEvent(new PointerEvent('pointerdown',{clientX:pos.x,clientY:pos.y,bubbles:true}));
+                  setTimeout(()=>el.dispatchEvent(new PointerEvent('pointerup',{clientX:pos.x,clientY:pos.y,bubbles:true})),40);
+                }
+              }
+            }
+          }
+          // ---- pinch maintenu = drag
+          if(pinch && S.hand.dragWin){
+            const win=S.hand.dragWin;
+            win.style.transform=`translate(${pos.x+S.hand.dragOffset.x}px,${pos.y+S.hand.dragOffset.y}px)`;
+          }
+          // ---- pinch relâché
+          if(!pinch && S.hand.wasPinch){
+            S.hand.dragWin=null;
+          }
+          S.hand.wasPinch=pinch;
+        }else{
+          handCursor.style.display='none';
+          if(!S.hand.wasPinch)S.hand.dragWin=null;
+        }
+      }catch(e){console.warn('hand',e)}
+    }
+    requestAnimationFrame(Hand.loop);
+  }
+};
+
+/* ================================================================
+   ORIENTATION → ANCRAGE SPATIAL
+   L'UI bouge à l'opposé de la rotation (comme si elle était fixe dans le monde)
+   ================================================================ */
+function initOrientation(){
+  if(S.orient.handler)return;
+  S.orient.handler=(e)=>{
+    const a=e.alpha??0, b=e.beta??0, g=e.gamma??0;
+    if(!S.orient.base)S.orient.base={a,b,g};
+    S.orient.current={a,b,g};
+    // delta angulaire
+    const da=((a-S.orient.base.a+540)%360)-180;
+    const db=b-S.orient.base.b;
+    const dg=g-S.orient.base.g;
+    // mapping : rotation horizontale → translation opposée (ancrage)
+    const px=Math.max(-180,Math.min(180,-da*2.2));
+    const py=Math.max(-120,Math.min(120,db*1.5));
+    spatial.style.transform=`translate3d(${px}px,${py}px,0)`;
+  };
+  window.addEventListener('deviceorientation',S.orient.handler,{passive:true});
+  S.orient.enabled=true;
+}
+async function enableOrientation(){
+  try{
+    if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){
+      const r=await DeviceOrientationEvent.requestPermission();
+      if(r!=='granted')throw new Error('Permission refusée');
+    }
+    initOrientation();
+    return true;
+  }catch(e){S.orient.enabled=false;throw e}
+}
+function disableOrientation(){
+  if(S.orient.handler){window.removeEventListener('deviceorientation',S.orient.handler);S.orient.handler=null}
+  S.orient.enabled=false;S.orient.base=null;spatial.style.transform='';
+}
+function recenter(){
+  if(S.orient.enabled){S.orient.base={...S.orient.current};spatial.style.transform=''}
+}
+
+/* ================================================================
+   MODE AR
+   ================================================================ */
+async function enableAR(){
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:S.ar.facing,width:{ideal:1280},height:{ideal:720}},
+      audio:false
+    });
+    arVideo.srcObject=stream;
+    await arVideo.play();
+    arVideo.classList.toggle('rear',S.ar.facing==='environment');
+    document.body.classList.add('ar-mode');
+    S.ar.active=true;S.ar.stream=stream;
+    $('#live-dot').classList.add('live');
+    // auto-enable orientation pour l'ancrage
+    try{await enableOrientation()}catch(e){console.warn('orient',e)}
+    // relance hand tracking sur le flux AR si déjà activé
+    if(S.hand.active){Hand.disable();Hand.enable().catch(()=>{})}
+    return true;
+  }catch(e){throw e}
+}
+function disableAR(){
+  if(S.ar.stream){S.ar.stream.getTracks().forEach(t=>t.stop());S.ar.stream=null}
+  arVideo.srcObject=null;arVideo.classList.remove('rear');
+  document.body.classList.remove('ar-mode');
+  S.ar.active=false;
+  $('#live-dot').classList.remove('live');
+  if(S.hand.active){Hand.disable();Hand.enable().catch(()=>{})}
+}
+
+async function flipCamera(){
+  S.ar.facing=S.ar.facing==='user'?'environment':'user';
+  if(S.ar.active){disableAR();await enableAR();}
+  else await enableAR();
+}
+
+/* ================================================================
+   ENV & QUALITY
+   ================================================================ */
+const ENV_NAMES={dark:'DARK SPACE',futuristic:'FUTURISTIC',light:'LIGHT SPACE',workspace:'WORKSPACE'};
+function setEnv(name){S.env=name;document.body.dataset.env=name;$('#st-env').textContent=ENV_NAMES[name]||name.toUpperCase();try{localStorage.setItem('vision-env',name)}catch{}}
+const QUAL={low:{blur:'12px',sat:'120%',spec:'.2',orbs:false},balanced:{blur:'26px',sat:'180%',spec:'.42',orbs:true},high:{blur:'40px',sat:'200%',spec:'.62',orbs:true}};
+function setQuality(q){S.quality=q;const t=QUAL[q]||QUAL.balanced;document.documentElement.style.setProperty('--blur',t.blur);document.documentElement.style.setProperty('--sat',t.sat);document.documentElement.style.setProperty('--spec',t.spec);$$('.orb').forEach(o=>o.style.display=t.orbs?'':'none');try{localStorage.setItem('vision-q',q)}catch{}}
+
+/* ================================================================
+   APPS
+   ================================================================ */
+const APPS={};
+
+/* ---- AR Control (app principale) ---- */
+APPS.ar={icon:'📷',label:'AR',open(){
+  const el=document.createElement('div');
+  el.innerHTML=`
+    <div class="row"><label>Mode AR (caméra en fond)</label><button class="btn sm" id="ar-toggle">${S.ar.active?'Désactiver':'Activer'}</button></div>
+    <div class="row"><label>Caméra</label><button class="btn sm" id="ar-flip">${S.ar.facing==='user'?'Frontale':'Arrière'}</button></div>
+    <div class="row"><label>Suivi de main</label><button class="btn sm" id="hand-toggle">${S.hand.active?'Désactiver':'Activer'}</button></div>
+    <div class="row"><label>Ancrage spatial (gyro)</label><button class="btn sm" id="gyro-toggle">${S.orient.enabled?'Désactiver':'Activer'}</button></div>
+    <div class="row"><button class="btn sm" id="recenter">Recentrer</button></div>
+    <div class="row muted" style="border-bottom:0">
+      Pince l'index et le pouce pour cliquer. Maintiens le pincement sur la barre de titre pour déplacer une fenêtre. Le gyroscope ancre l'interface dans l'espace (rotation uniquement, pas de position 6-DOF).
+    </div>
+  `;
+  const win=makeWindow({title:'AR Control',width:340,height:400,body:el});
+  $('#ar-toggle',el).addEventListener('click',async()=>{
+    try{if(S.ar.active){disableAR();$('#ar-toggle',el).textContent='Activer'}
+    else{await enableAR();$('#ar-toggle',el).textContent='Désactiver'}
+    $('#gyro-toggle',el).textContent=S.orient.enabled?'Désactiver':'Activer'}
+    catch(e){alert('Caméra: '+e.message)}
+  });
+  $('#ar-flip',el).addEventListener('click',async()=>{try{await flipCamera();$('#ar-flip',el).textContent=S.ar.facing==='user'?'Frontale':'Arrière'}catch(e){alert(e.message)}});
+  $('#hand-toggle',el).addEventListener('click',async()=>{
+    const b=$('#hand-toggle',el);
+    if(S.hand.active){Hand.disable();b.textContent='Activer'}
+    else{b.textContent='Chargement…';b.disabled=true;try{await Hand.enable();b.textContent='Désactiver'}catch(e){alert('Main: '+e.message);b.textContent='Activer'}finally{b.disabled=false}}
+  });
+  $('#gyro-toggle',el).addEventListener('click',async()=>{
+    if(S.orient.enabled){disableOrientation();$('#gyro-toggle',el).textContent='Activer'}
+    else{try{await enableOrientation();$('#gyro-toggle',el).textContent='Désactiver'}catch(e){alert('Gyro: '+e.message)}}
+  });
+  $('#recenter',el).addEventListener('click',recenter);
+}};
+
+/* ---- Settings simplifié ---- */
+APPS.settings={icon:'⚙',label:'Settings',open(){
+  const el=document.createElement('div');
+  el.innerHTML=`
+    <div class="row"><label>Environnement (hors AR)</label></div>
+    <div class="seg" id="env-seg">
+      <button data-env="dark">Dark</button><button data-env="futuristic">Futuristic</button>
+      <button data-env="light">Light</button><button data-env="workspace">Workspace</button>
+    </div>
+    <div class="row" style="margin-top:14px"><label>Qualité</label>
+      <div class="seg" id="q-seg"><button data-q="low">Low</button><button data-q="balanced">Balanced</button><button data-q="high">High</button></div>
+    </div>
+    <div class="row"><button class="btn sm" id="stop-all" style="width:100%">Tout arrêter (caméra, main, gyro)</button></div>
+    <div class="row muted" style="border-bottom:0">Ferme toutes les fenêtres pour revenir à un bureau propre. Le mode AR reste actif jusqu'à désactivation.</div>
+  `;
+  makeWindow({title:'Settings',width:320,height:340,body:el});
+  const envSeg=$('#env-seg',el);$$('button',envSeg).forEach(b=>{if(b.dataset.env===S.env)b.classList.add('active');b.addEventListener('click',()=>{$$('button',envSeg).forEach(x=>x.classList.remove('active'));b.classList.add('active');setEnv(b.dataset.env)})});
+  const qSeg=$('#q-seg',el);$$('button',qSeg).forEach(b=>{if(b.dataset.q===S.quality)b.classList.add('active');b.addEventListener('click',()=>{$$('button',qSeg).forEach(x=>x.classList.remove('active'));b.classList.add('active');setQuality(b.dataset.q)})});
+  $('#stop-all',el).addEventListener('click',()=>{disableAR();Hand.disable();disableOrientation();alert('Tout est arrêté.')});
+}};
+
+/* ---- Clock ---- */
+APPS.clock={icon:'🕐',label:'Clock',open(){
+  const body=document.createElement('div');body.className='clock';
+  body.innerHTML='<div class="clock-time">--:--</div><div class="clock-date"></div>';
+  const t=$('.clock-time',body),d=$('.clock-date',body);
+  const win=makeWindow({title:'Clock',width:300,height:260,body});
+  const tick=()=>{if(!document.body.contains(win)){clearInterval(iv);return}const now=new Date();t.textContent=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});d.textContent=now.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})};
+  tick();const iv=setInterval(tick,1000);
+}};
+
+/* ---- Notes ---- */
+APPS.notes={icon:'📝',label:'Notes',open(){
+  const wrap=document.createElement('div');wrap.style.cssText='height:100%;display:flex;flex-direction:column';
+  const ta=document.createElement('textarea');ta.className='notes-ta';ta.placeholder='Tape ici… sauvegardé localement';
+  try{ta.value=localStorage.getItem('vision-notes')||''}catch{}
+  ta.addEventListener('input',()=>{try{localStorage.setItem('vision-notes',ta.value)}catch{}});
+  ta.addEventListener('focus',()=>showKb(ta));
+  wrap.appendChild(ta);makeWindow({title:'Notes',width:320,height:380,body:wrap});
+}};
+
+/* ---- Photos ---- */
+APPS.gallery={icon:'🖼',label:'Photos',open(){
+  const wrap=document.createElement('div');
+  wrap.innerHTML='<p class="muted" style="margin:0 0 10px">Images locales uniquement.</p><input type="file" accept="image/*" multiple style="display:none"><button class="btn primary" style="width:100%">Choisir des images</button><div data-g style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px"></div>';
+  const inp=$('input',wrap),grid=$('[data-g]',wrap);
+  $('button',wrap).addEventListener('click',()=>inp.click());
+  inp.addEventListener('change',()=>{for(const f of inp.files){const url=URL.createObjectURL(f);const img=document.createElement('img');img.src=url;img.style.cssText='width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:zoom-in';img.addEventListener('click',()=>{const big=makeWindow({title:f.name,width:340,height:460,body:'<img style="width:100%;height:100%;object-fit:contain">'});$('img',big).src=url});grid.appendChild(img)}});
+  makeWindow({title:'Photos',width:320,height:420,body:wrap});
+}};
+
+/* ---- Video ---- */
+APPS.video={icon:'▶',label:'Video',open(){
+  const wrap=document.createElement('div');
+  wrap.innerHTML='<input type="file" accept="video/*" style="display:none"><button class="btn primary" style="width:100%;margin-bottom:10px">Choisir une vidéo</button><video controls playsinline style="width:100%;border-radius:10px;background:#000"></video>';
+  const inp=$('input',wrap),v=$('video',wrap);
+  $('button',wrap).addEventListener('click',()=>inp.click());
+  inp.addEventListener('change',()=>{if(v.src)URL.revokeObjectURL(v.src);if(inp.files[0])v.src=URL.createObjectURL(inp.files[0])});
+  const win=makeWindow({title:'Video',width:340,height:400,body:wrap});
+  win._cleanup=()=>{if(v.src)URL.revokeObjectURL(v.src);v.pause();v.src=''};
+}};
+
+/* ---- Music ---- */
+APPS.music={icon:'🎵',label:'Music',open(){
+  const wrap=document.createElement('div');
+  wrap.innerHTML='<input type="file" accept="audio/*" style="display:none"><button class="btn primary" style="width:100%;margin-bottom:10px">Choisir un audio</button><audio controls style="width:100%"></audio><p class="muted" style="margin-top:12px">Spotify/Apple Music nécessite un client OAuth officiel — non activé.</p>';
+  const inp=$('input',wrap),a=$('audio',wrap);
+  $('button',wrap).addEventListener('click',()=>inp.click());
+  inp.addEventListener('change',()=>{if(a.src)URL.revokeObjectURL(a.src);if(inp.files[0])a.src=URL.createObjectURL(inp.files[0])});
+  const win=makeWindow({title:'Music',width:320,height:280,body:wrap});
+  win._cleanup=()=>{if(a.src)URL.revokeObjectURL(a.src);a.pause();a.src=''};
+}};
+
+/* ---- Browser ---- */
+APPS.browser={icon:'🌐',label:'Browser',open(){
+  const wrap=document.createElement('div');wrap.style.cssText='height:100%;display:flex;flex-direction:column;gap:8px';
+  wrap.innerHTML='<div style="display:flex;gap:6px"><input type="url" placeholder="https://example.com" value="https://example.com"><button class="btn sm">Go</button></div><div style="display:flex;gap:6px"><button class="btn sm" data-safari style="flex:1">Ouvrir dans Safari</button></div><p class="muted" style="margin:0">La plupart des sites bloquent les iframes. Utilise Safari pour ceux-là.</p><iframe style="flex:1;width:100%;border:0;border-radius:10px;background:rgba(255,255,255,.05)" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" referrerpolicy="no-referrer"></iframe>';
+  const inp=$('input',wrap),iframe=$('iframe',wrap);
+  const go=(raw)=>{let url=raw.trim();if(!/^https?:\/\//i.test(url))url='https://'+url;inp.value=url;iframe.src=url};
+  $('button',wrap).addEventListener('click',()=>go(inp.value));
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')go(inp.value)});
+  $('[data-safari]',wrap).addEventListener('click',()=>{const u=inp.value||'https://example.com';window.open(u,'_blank','noopener')});
+  makeWindow({title:'Browser',width:340,height:480,body:wrap});go('https://example.com');
+}};
+
+/* ---- 3D Viewer — CORRIGÉ ---- */
+APPS.three={icon:'🧊',label:'3D',open(){
+  const c=document.createElement('div');c.style.cssText='width:100%;height:100%;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 50%,#0a1830,#02040a)';
+  const win=makeWindow({title:'3D Viewer',width:340,height:460,body:c});
+  let cleanup=()=>{};
+  (async()=>{
+    try{
+      // import map déjà en place → import par nom
+      const THREE=await import('three');
+      const {OrbitControls}=await import('three/addons/controls/OrbitControls.js');
+      const scene=new THREE.Scene();
+      const cam=new THREE.PerspectiveCamera(50,1,.1,100);cam.position.set(0,0,5);
+      const r=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true}); // preserveDrawingBuffer = fix iOS Safari
+      r.setPixelRatio(Math.min(devicePixelRatio,2));
+      r.domElement.style.cssText='width:100%;height:100%;display:block';c.appendChild(r.domElement);
+      const geom=new THREE.TorusKnotGeometry(1,.35,128,24);
+      const mat=new THREE.MeshPhysicalMaterial({color:0x7db2ff,metalness:.6,roughness:.2,clearcoat:1,clearcoatRoughness:.1});
+      const mesh=new THREE.Mesh(geom,mat);scene.add(mesh);
+      scene.add(new THREE.AmbientLight(0xffffff,.6));
+      const dl=new THREE.DirectionalLight(0xffffff,1.2);dl.position.set(3,5,4);scene.add(dl);
+      const ctl=new OrbitControls(cam,r.domElement);ctl.enableZoom=true;ctl.enablePan=false;ctl.autoRotate=true;ctl.autoRotateSpeed=1.5;
+      const resize=()=>{const{width,height}=c.getBoundingClientRect();if(!width||!height)return;cam.aspect=width/height;cam.updateProjectionMatrix();r.setSize(width,height,false)};
+      const ro=new ResizeObserver(resize);ro.observe(c);resize();
+      let run=true;
+      const loop=()=>{if(!run)return;ctl.update();r.render(scene,cam);requestAnimationFrame(loop)};loop();
+      cleanup=()=>{run=false;ro.disconnect();ctl.dispose();geom.dispose();mat.dispose();r.dispose()};
+    }catch(e){
+      c.innerHTML='<div style="padding:14px"><p class="err">Viewer 3D indisponible: '+e.message+'</p><p class="muted">Vérifie ta connexion (CDN Three.js). Sur iPhone, WebGL doit être supporté.</p></div>';
+    }
+  })();
+  win._cleanup=()=>cleanup();
+}};
+
+/* ---- Mini-game ---- */
+APPS.game={icon:'🎯',label:'Targets',open(){
+  const wrap=document.createElement('div');wrap.className='game-wrap';
+  wrap.innerHTML='<div class="game-hud"><span>Score: <span data-s>0</span></span><span>Temps: <span data-tm>20</span>s</span></div>';
+  const win=makeWindow({title:'Spatial Targets',width:340,height:440,body:wrap});
+  let score=0,timeLeft=20,playing=true,spawnIV,tickIV;
+  const sEl=$('[data-s]',wrap),tEl=$('[data-tm]',wrap);
+  const spawn=()=>{if(!playing||!document.body.contains(win))return;const size=40+Math.random()*30;const x=Math.random()*(wrap.clientWidth-size);const y=40+Math.random()*(wrap.clientHeight-size-40);const el=document.createElement('div');el.className='target';el.style.cssText=`width:${size}px;height:${size}px;left:${x}px;top:${y}px`;el.addEventListener('pointerdown',ev=>{ev.stopPropagation();if(!playing)return;score+=Math.round(50/(size/40));sEl.textContent=score;el.remove()},{passive:true});wrap.appendChild(el);setTimeout(()=>el.isConnected&&el.remove(),1600)};
+  const startTimers=()=>{spawnIV=setInterval(spawn,500);tickIV=setInterval(()=>{if(!document.body.contains(win)){clearInterval(tickIV);clearInterval(spawnIV);return}timeLeft--;tEl.textContent=timeLeft;if(timeLeft<=0)end()},1000)};
+  function end(){playing=false;clearInterval(spawnIV);clearInterval(tickIV);$$('.target',wrap).forEach(t=>t.remove());const ov=document.createElement('div');ov.className='game-over';ov.innerHTML=`<h2>Temps écoulé</h2><div class="score">${score}</div><button class="btn primary">Rejouer</button>`;$('button',ov).addEventListener('click',()=>{ov.remove();score=0;timeLeft=20;playing=true;sEl.textContent='0';tEl.textContent='20';startTimers()});wrap.appendChild(ov)}
+  startTimers();win._cleanup=()=>{playing=false;clearInterval(spawnIV);clearInterval(tickIV)};
+}};
+
+/* ================================================================
+   DOCK
+   ================================================================ */
+for(const[id,app]of Object.entries(APPS)){
+  const b=document.createElement('button');b.className='dock-app';b.setAttribute('aria-label',app.label);
+  b.innerHTML=`${app.icon}<span class="label">${app.label}</span>`;
+  b.addEventListener('click',()=>app.open());
+  dock.appendChild(b);
+}
+
+/* ================================================================
+   CLAVIER
+   ================================================================ */
 let kbTarget=null,kbShift=false;
 const kb=$('#keyboard');
 $$('[data-krow]',kb).forEach(row=>{for(const ch of row.dataset.krow){const b=document.createElement('button');b.textContent=ch;b.dataset.k=ch;row.appendChild(b)}});
@@ -184,313 +602,26 @@ kb.addEventListener('click',e=>{
   t.dispatchEvent(new Event('input',{bubbles:true}));t.focus();
 });
 
-/* ---------- ENV & QUALITY ---------- */
-const ENV_NAMES={dark:'DARK SPACE',futuristic:'FUTURISTIC',light:'LIGHT SPACE',workspace:'WORKSPACE'};
-function setEnv(name){S.env=name;document.body.dataset.env=name;$('#st-env').textContent=ENV_NAMES[name]||name.toUpperCase();try{localStorage.setItem('vision-env',name)}catch{}}
-const QUAL={low:{blur:'12px',sat:'120%',spec:'.2',orbs:false},balanced:{blur:'26px',sat:'180%',spec:'.42',orbs:true},high:{blur:'40px',sat:'200%',spec:'.62',orbs:true}};
-function setQuality(q){S.quality=q;const t=QUAL[q]||QUAL.balanced;document.documentElement.style.setProperty('--blur',t.blur);document.documentElement.style.setProperty('--sat',t.sat);document.documentElement.style.setProperty('--spec',t.spec);$$('.orb').forEach(o=>o.style.display=t.orbs?'':'none');try{localStorage.setItem('vision-q',q)}catch{}}
-
-/* ---------- CAMERA SERVICE ---------- */
-const Camera={
-  async start(facing='environment'){
-    if(S.cam.stream){S.cam.stream.getTracks().forEach(t=>t.stop());S.cam.stream=null}
-    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing},audio:false});
-    S.cam.stream=stream;return stream;
-  },
-  stop(){if(S.cam.stream){S.cam.stream.getTracks().forEach(t=>t.stop());S.cam.stream=null}}
-};
-
-/* ---------- ORIENTATION SERVICE ---------- */
-const Orient={
-  async enable(){
-    try{
-      if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
-        const r=await DeviceOrientationEvent.requestPermission();
-        if(r!=='granted')throw new Error('Permission denied by user');
-      }
-      if(!S.orient.handler){
-        S.orient.handler=e=>{
-          S.orient.alpha=e.alpha??0;S.orient.beta=e.beta??0;S.orient.gamma=e.gamma??0;
-          Orient.applyParallax();
-        };
-        window.addEventListener('deviceorientation',S.orient.handler,{passive:true});
-      }
-      S.orient.enabled=true;return true;
-    }catch(err){S.orient.enabled=false;throw err}
-  },
-  disable(){if(S.orient.handler){window.removeEventListener('deviceorientation',S.orient.handler);S.orient.handler=null}S.orient.enabled=false;$('#env').style.transform=''},
-  recenter(){S.orient.offset={alpha:S.orient.alpha,beta:S.orient.beta,gamma:S.orient.gamma}},
-  applyParallax(){
-    if(!S.orient.enabled)return;
-    const dG=(S.orient.gamma-S.orient.offset.gamma);
-    const dB=(S.orient.beta-S.orient.offset.beta);
-    const px=Math.max(-24,Math.min(24,dG*.6));
-    const py=Math.max(-24,Math.min(24,dB*.4));
-    $('#env').style.transform=`translate(${px}px,${py}px) scale(1.06)`;
-  }
-};
-
-/* ---------- HAND TRACKING SERVICE ---------- */
-const cursor=$('#hand-cursor');
-const Hand={
-  async enable(){
-    if(S.hand.active)return;
-    try{
-      const mod=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.9');
-      const fileset=await mod.FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.9/wasm');
-      const lm=await mod.HandLandmarker.createFromOptions(fileset,{
-        baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',delegate:'GPU'},
-        runningMode:'VIDEO',numHands:1
-      });
-      const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
-      const v=document.createElement('video');v.autoplay=true;v.playsInline=true;v.muted=true;v.srcObject=stream;
-      await v.play();
-      Object.assign(S.hand,{active:true,landmarker:lm,video:v,stream,lastT:0,wasPinch:false});
-      Hand.loop();
-    }catch(err){S.hand.active=false;throw err}
-  },
-  disable(){
-    S.hand.active=false;
-    if(S.hand.stream){S.hand.stream.getTracks().forEach(t=>t.stop());S.hand.stream=null}
-    if(S.hand.video){S.hand.video.srcObject=null;S.hand.video=null}
-    S.hand.landmarker=null;cursor.style.display='none';cursor.classList.remove('pinch');
-  },
-  loop(){
-    if(!S.hand.active)return;
-    const{landmarker,video}=S.hand;
-    if(video.readyState>=2){
-      const now=performance.now();
-      if(now-S.hand.lastT>33){
-        S.hand.lastT=now;
-        try{
-          const res=landmarker.detectForVideo(video,now);
-          if(res.landmarks&&res.landmarks.length){
-            const lms=res.landmarks[0];const tip=lms[8];const thumb=lms[4];
-            const cx=(1-tip.x)*innerWidth;const cy=tip.y*innerHeight;
-            cursor.style.display='block';cursor.style.transform=`translate(${cx}px,${cy}px)`;
-            const dist=Math.hypot(tip.x-thumb.x,tip.y-thumb.y);
-            const pinch=dist<.05;
-            cursor.classList.toggle('pinch',pinch);
-            if(pinch&&!S.hand.wasPinch){
-              const el=document.elementFromPoint(cx,cy);
-              if(el&&el!==cursor){
-                el.dispatchEvent(new PointerEvent('pointerdown',{clientX:cx,clientY:cy,bubbles:true}));
-                setTimeout(()=>el.dispatchEvent(new PointerEvent('pointerup',{clientX:cx,clientY:cy,bubbles:true})),40);
-              }
-            }
-            S.hand.wasPinch=pinch;
-          }else{cursor.style.display='none'}
-        }catch(e){console.warn('hand infer',e)}
-      }
-    }
-    requestAnimationFrame(Hand.loop);
-  }
-};
-
 /* ================================================================
-   APPS
+   STATUS CLOCK + BOOT
    ================================================================ */
-const APPS={};
-
-/* ---- Settings ---- */
-APPS.settings={icon:'⚙',label:'Settings',open(){
-  const el=document.createElement('div');
-  el.innerHTML=`
-    <div class="row"><label>Environment</label></div>
-    <div class="seg" id="env-seg">
-      <button data-env="dark">Dark</button><button data-env="futuristic">Futuristic</button>
-      <button data-env="light">Light</button><button data-env="workspace">Workspace</button>
-    </div>
-    <div class="row" style="margin-top:14px"><label>Render quality</label>
-      <div class="seg" id="q-seg"><button data-q="low">Low</button><button data-q="balanced">Balanced</button><button data-q="high">High</button></div>
-    </div>
-    <div class="row"><label>Camera preview</label><button class="btn sm" id="cam-btn">Enable</button></div>
-    <div class="row"><label>Orientation sensor</label><button class="btn sm" id="ori-btn">Enable</button></div>
-    <div class="row"><button class="btn sm" id="ori-recenter">Recenter orientation</button></div>
-    <div class="row"><label>Hand tracking</label><button class="btn sm" id="hand-btn">Enable</button></div>
-    <div class="row"><button class="btn sm" id="stop-all">Release all sensors</button></div>
-    <div class="row muted" style="border-bottom:0">Hand tracking loads ~5 MB from CDN on first use. Requires HTTPS, camera permission, and a physical iPhone to verify. Pinch = tap. Not 6-DOF.</div>
-  `;
-  const win=makeWindow({title:'Settings',width:340,height:520,body:el});
-  const envSeg=$('#env-seg',el);$$('button',envSeg).forEach(b=>{if(b.dataset.env===S.env)b.classList.add('active');b.addEventListener('click',()=>{$$('button',envSeg).forEach(x=>x.classList.remove('active'));b.classList.add('active');setEnv(b.dataset.env)})});
-  const qSeg=$('#q-seg',el);$$('button',qSeg).forEach(b=>{if(b.dataset.q===S.quality)b.classList.add('active');b.addEventListener('click',()=>{$$('button',qSeg).forEach(x=>x.classList.remove('active'));b.classList.add('active');setQuality(b.dataset.q)})});
-  $('#cam-btn',el).addEventListener('click',async()=>{
-    try{
-      const stream=await Camera.start('environment');
-      const v=document.createElement('video');v.autoplay=true;v.playsInline=true;v.muted=true;v.srcObject=stream;v.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:10px';
-      const cw=makeWindow({title:'Rear camera',width:300,height:400,body:v});
-      cw._cleanup=()=>{Camera.stop()};
-    }catch(e){alert('Camera error: '+e.message)}
-  });
-  $('#ori-btn',el).addEventListener('click',async()=>{
-    try{await Orient.enable();alert('Orientation enabled. Tilt your device.')}catch(e){alert('Orientation error: '+e.message)}
-  });
-  $('#ori-recenter',el).addEventListener('click',()=>{Orient.recenter();alert('Recentered.')});
-  $('#hand-btn',el).addEventListener('click',async()=>{
-    const b=$('#hand-btn',el);
-    if(S.hand.active){Hand.disable();b.textContent='Enable';return}
-    b.textContent='Loading…';b.disabled=true;
-    try{await Hand.enable();b.textContent='Disable'}catch(e){b.textContent='Enable';alert('Hand tracking error: '+e.message)}finally{b.disabled=false}
-  });
-  $('#stop-all',el).addEventListener('click',()=>{Camera.stop();Orient.disable();Hand.disable();$('#hand-btn',el).textContent='Enable';alert('All sensors released.')});
-}};
-
-/* ---- Clock ---- */
-APPS.clock={icon:'🕐',label:'Clock',open(){
-  const body=document.createElement('div');body.className='clock';
-  body.innerHTML='<div class="clock-time">--:--</div><div class="clock-date"></div>';
-  const t=$('.clock-time',body),d=$('.clock-date',body);
-  const win=makeWindow({title:'Clock',width:300,height:260,body});
-  const tick=()=>{if(!document.body.contains(win)){clearInterval(iv);return}const now=new Date();t.textContent=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});d.textContent=now.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})};
-  tick();const iv=setInterval(tick,1000);
-}};
-
-/* ---- Notes ---- */
-APPS.notes={icon:'📝',label:'Notes',open(){
-  const wrap=document.createElement('div');wrap.style.cssText='height:100%;display:flex;flex-direction:column';
-  const ta=document.createElement('textarea');ta.className='notes-ta';ta.placeholder='Type here… saved locally';
-  try{ta.value=localStorage.getItem('vision-notes')||''}catch{}
-  ta.addEventListener('input',()=>{try{localStorage.setItem('vision-notes',ta.value)}catch{}});
-  ta.addEventListener('focus',()=>showKb(ta));
-  wrap.appendChild(ta);
-  makeWindow({title:'Notes',width:320,height:380,body:wrap});
-}};
-
-/* ---- Photo gallery ---- */
-APPS.gallery={icon:'🖼',label:'Photos',open(){
-  const wrap=document.createElement('div');
-  wrap.innerHTML='<p class="muted" style="margin:0 0 10px">Load images from your device. They stay on-device.</p><input type="file" accept="image/*" multiple style="display:none"><button class="btn primary" style="width:100%">Choose images</button><div data-g style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px"></div>';
-  const inp=$('input',wrap),grid=$('[data-g]',wrap);
-  $('button',wrap).addEventListener('click',()=>inp.click());
-  inp.addEventListener('change',()=>{
-    for(const f of inp.files){
-      const url=URL.createObjectURL(f);const img=document.createElement('img');img.src=url;
-      img.style.cssText='width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:zoom-in';
-      img.addEventListener('click',()=>{const big=makeWindow({title:f.name,width:340,height:460,body:'<img style="width:100%;height:100%;object-fit:contain">'});$('img',big).src=url});
-      grid.appendChild(img);
-    }
-  });
-  makeWindow({title:'Photo Gallery',width:320,height:420,body:wrap});
-}};
-
-/* ---- Video ---- */
-APPS.video={icon:'▶',label:'Video',open(){
-  const wrap=document.createElement('div');
-  wrap.innerHTML='<input type="file" accept="video/*" style="display:none"><button class="btn primary" style="width:100%;margin-bottom:10px">Choose video</button><video controls playsinline style="width:100%;border-radius:10px;background:#000"></video>';
-  const inp=$('input',wrap),v=$('video',wrap);
-  $('button',wrap).addEventListener('click',()=>inp.click());
-  inp.addEventListener('change',()=>{if(v.src)URL.revokeObjectURL(v.src);if(inp.files[0])v.src=URL.createObjectURL(inp.files[0])});
-  const win=makeWindow({title:'Video Player',width:340,height:400,body:wrap});
-  win._cleanup=()=>{if(v.src)URL.revokeObjectURL(v.src);v.pause();v.src=''};
-}};
-
-/* ---- Music ---- */
-APPS.music={icon:'🎵',label:'Music',open(){
-  const wrap=document.createElement('div');
-  wrap.innerHTML=`
-    <input type="file" accept="audio/*" style="display:none">
-    <button class="btn primary" style="width:100%;margin-bottom:10px">Choose audio file</button>
-    <audio controls style="width:100%"></audio>
-    <p class="muted" style="margin-top:12px">Spotify/Apple Music integration requires an official OAuth client ID and HTTPS redirect URL. Not enabled in this build — local files only.</p>
-  `;
-  const inp=$('input',wrap),a=$('audio',wrap);
-  $('button',wrap).addEventListener('click',()=>inp.click());
-  inp.addEventListener('change',()=>{if(a.src)URL.revokeObjectURL(a.src);if(inp.files[0])a.src=URL.createObjectURL(inp.files[0])});
-  const win=makeWindow({title:'Music',width:320,height:280,body:wrap});
-  win._cleanup=()=>{if(a.src)URL.revokeObjectURL(a.src);a.pause();a.src=''};
-}};
-
-/* ---- Browser ---- */
-APPS.browser={icon:'🌐',label:'Browser',open(){
-  const wrap=document.createElement('div');
-  wrap.style.cssText='height:100%;display:flex;flex-direction:column;gap:8px';
-  wrap.innerHTML=`
-    <div style="display:flex;gap:6px">
-      <input type="url" placeholder="https://example.com" value="https://example.com">
-      <button class="btn sm">Go</button>
-    </div>
-    <div style="display:flex;gap:6px">
-      <button class="btn sm" data-open-safari style="flex:1">Open in Safari</button>
-    </div>
-    <p class="muted" style="margin:0">Most sites block iframe embedding (X-Frame-Options). Use "Open in Safari" for those.</p>
-    <iframe style="flex:1;width:100%;border:0;border-radius:10px;background:rgba(255,255,255,.05)" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" referrerpolicy="no-referrer"></iframe>
-  `;
-  const inp=$('input',wrap),iframe=$('iframe',wrap);
-  const go=(raw)=>{let url=raw.trim();if(!/^https?:\/\//i.test(url))url='https://'+url;inp.value=url;iframe.src=url};
-  $('button',wrap).addEventListener('click',()=>go(inp.value));
-  inp.addEventListener('keydown',e=>{if(e.key==='Enter')go(inp.value)});
-  $('[data-open-safari]',wrap).addEventListener('click',()=>{const u=inp.value||'https://example.com';window.open(u,'_blank','noopener')});
-  makeWindow({title:'Browser',width:340,height:480,body:wrap});
-  go('https://example.com');
-}};
-
-/* ---- 3D Viewer ---- */
-APPS.three={icon:'🧊',label:'3D',open(){
-  const c=document.createElement('div');c.style.cssText='width:100%;height:100%;position:relative;overflow:hidden';
-  const win=makeWindow({title:'3D Viewer',width:340,height:460,body:c});
-  let cleanup=()=>{};
-  (async()=>{
-    try{
-      const THREE=await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');
-      const {OrbitControls}=await import('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js');
-      const scene=new THREE.Scene();
-      const cam=new THREE.PerspectiveCamera(50,1,.1,100);cam.position.set(0,0,5);
-      const r=new THREE.WebGLRenderer({antialias:true,alpha:true});r.setPixelRatio(Math.min(devicePixelRatio,2));
-      r.domElement.style.cssText='width:100%;height:100%;display:block';c.appendChild(r.domElement);
-      const geom=new THREE.TorusKnotGeometry(1,.35,128,24);
-      const mat=new THREE.MeshPhysicalMaterial({color:0x7db2ff,metalness:.6,roughness:.2,clearcoat:1,clearcoatRoughness:.1});
-      const mesh=new THREE.Mesh(geom,mat);scene.add(mesh);
-      scene.add(new THREE.AmbientLight(0xffffff,.6));
-      const dl=new THREE.DirectionalLight(0xffffff,1.2);dl.position.set(3,5,4);scene.add(dl);
-      const ctl=new OrbitControls(cam,r.domElement);ctl.enableZoom=true;ctl.enablePan=false;ctl.autoRotate=true;ctl.autoRotateSpeed=1.5;
-      const resize=()=>{const{width,height}=c.getBoundingClientRect();if(!width||!height)return;cam.aspect=width/height;cam.updateProjectionMatrix();r.setSize(width,height,false)};
-      const ro=new ResizeObserver(resize);ro.observe(c);resize();
-      let run=true;
-      const loop=()=>{if(!run)return;ctl.update();r.render(scene,cam);requestAnimationFrame(loop)};loop();
-      cleanup=()=>{run=false;ro.disconnect();ctl.dispose();geom.dispose();mat.dispose();r.dispose()};
-    }catch(e){c.innerHTML='<p class="err" style="padding:14px">3D viewer failed: '+e.message+'</p>'}
-  })();
-  win._cleanup=()=>cleanup();
-}};
-
-/* ---- Mini-game ---- */
-APPS.game={icon:'🎯',label:'Targets',open(){
-  const wrap=document.createElement('div');wrap.className='game-wrap';
-  wrap.innerHTML='<div class="game-hud"><span>Score: <span data-s>0</span></span><span>Time: <span data-tm>20</span>s</span></div>';
-  const win=makeWindow({title:'Spatial Targets',width:340,height:440,body:wrap});
-  let score=0,timeLeft=20,playing=true,spawnIV,tickIV;
-  const sEl=$('[data-s]',wrap),tEl=$('[data-tm]',wrap);
-  const spawn=()=>{if(!playing||!document.body.contains(win))return;const size=40+Math.random()*30;const x=Math.random()*(wrap.clientWidth-size);const y=40+Math.random()*(wrap.clientHeight-size-40);const el=document.createElement('div');el.className='target';el.style.cssText=`width:${size}px;height:${size}px;left:${x}px;top:${y}px`;el.addEventListener('pointerdown',ev=>{ev.stopPropagation();if(!playing)return;score+=Math.round(50/(size/40));sEl.textContent=score;el.remove()},{passive:true});wrap.appendChild(el);setTimeout(()=>el.isConnected&&el.remove(),1600)};
-  const startTimers=()=>{spawnIV=setInterval(spawn,500);tickIV=setInterval(()=>{if(!document.body.contains(win)){clearInterval(tickIV);clearInterval(spawnIV);return}timeLeft--;tEl.textContent=timeLeft;if(timeLeft<=0)end()},1000)};
-  function end(){playing=false;clearInterval(spawnIV);clearInterval(tickIV);$$('.target',wrap).forEach(t=>t.remove());const ov=document.createElement('div');ov.className='game-over';ov.innerHTML=`<h2>Time's up</h2><div class="score">${score}</div><button class="btn primary">Play again</button>`;$('button',ov).addEventListener('click',()=>{ov.remove();score=0;timeLeft=20;playing=true;sEl.textContent='0';tEl.textContent='20';startTimers()});wrap.appendChild(ov)}
-  startTimers();
-  win._cleanup=()=>{playing=false;clearInterval(spawnIV);clearInterval(tickIV)};
-}};
-
-/* ---------- DOCK ---------- */
-for(const[id,app]of Object.entries(APPS)){
-  const b=document.createElement('button');b.className='dock-app';b.setAttribute('aria-label',app.label);
-  b.innerHTML=`${app.icon}<span class="label">${app.label}</span>`;
-  b.addEventListener('click',()=>app.open());
-  dock.appendChild(b);
-}
-
-/* ---------- STATUS CLOCK ---------- */
 const stTime=$('#st-time');
 const tickStatus=()=>{stTime.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})};
 tickStatus();setInterval(tickStatus,1000);
 
-/* ---------- BOOT ---------- */
 try{setEnv(localStorage.getItem('vision-env')||'dark')}catch{setEnv('dark')}
 try{setQuality(localStorage.getItem('vision-q')||'balanced')}catch{setQuality('balanced')}
-setTimeout(()=>{const h=$('#hint');if(h){h.style.transition='opacity .4s';h.style.opacity='0';setTimeout(()=>h.remove(),500)}},5500);
 
-/* ---------- SERVICE WORKER ---------- */
-if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
+/* ================================================================
+   CLEANUP
+   ================================================================ */
+addEventListener('pagehide',()=>{disableAR();Hand.disable();disableOrientation()});
+addEventListener('beforeunload',()=>{disableAR();Hand.disable();disableOrientation()});
 
-/* ---------- GLOBAL CLEANUP ---------- */
-addEventListener('pagehide',()=>{Camera.stop();Hand.disable()});
-addEventListener('beforeunload',()=>{Camera.stop();Hand.disable()});
+/* ================================================================
+   SERVICE WORKER
+   ================================================================ */
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
 </script>
 </body>
 </html>
