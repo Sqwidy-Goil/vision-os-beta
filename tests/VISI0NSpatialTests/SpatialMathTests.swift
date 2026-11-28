@@ -13,23 +13,25 @@ final class SpatialMathTests: XCTestCase {
         XCTAssertEqual(ray.direction.z, -1, accuracy: 0.0001)
     }
 
-    func testPlaneIntersection() {
+    func testPlaneIntersection() throws {
         let point = SpatialMath.intersectPlane(rayOrigin: SIMD3<Float>(0, 0, 0), rayDirection: SIMD3<Float>(0, 0, -1), planePoint: SIMD3<Float>(0, 0, -3), planeNormal: SIMD3<Float>(0, 0, 1))
-        XCTAssertEqual(point?.z, -3, accuracy: 0.0001)
+        let intersection = try XCTUnwrap(point)
+        XCTAssertEqual(intersection.z, -3, accuracy: 0.0001)
         XCTAssertNil(SpatialMath.intersectPlane(rayOrigin: SIMD3<Float>(0, 0, 0), rayDirection: SIMD3<Float>(0, 1, 0), planePoint: SIMD3<Float>(0, 0, -3), planeNormal: SIMD3<Float>(0, 0, 1)))
     }
 
-    func testLocalHitConvertsWorldPointToNormalizedQuad() {
+    func testLocalHitConvertsWorldPointToNormalizedQuad() throws {
         let window = SpatialWindow(module: .browser, placement: WindowPlacement(x: 1, y: 2, z: -3, width: 2, height: 1, yaw: 0, pitch: 0, roll: 0))
         let model = SpatialMath.modelMatrix(for: window, headOrientation: simd_quatf(angle: 0, axis: SIMD3<Float>(0, 1, 0)))
         let point = SIMD3<Float>(1.5, 2.25, -3)
         let local = SpatialMath.localHit(point: point, modelMatrix: model)
-        XCTAssertEqual(local?.x, 0.25, accuracy: 0.0001)
-        XCTAssertEqual(local?.y, 0.25, accuracy: 0.0001)
+        let hit = try XCTUnwrap(local)
+        XCTAssertEqual(hit.x, 0.25, accuracy: 0.0001)
+        XCTAssertEqual(hit.y, 0.25, accuracy: 0.0001)
     }
 
     func testHeadLockedWindowFollowsHeadAndWorldLockedDoesNot() {
-        let window = SpatialWindow(module: .settings, positioning: .headLocked, placement: WindowPlacement(x: 0, y: 0, z: -3, width: 2, height: 1, yaw: 0, pitch: 0, roll: 0))
+        let window = SpatialWindow(module: .settings, placement: WindowPlacement(x: 0, y: 0, z: -3, width: 2, height: 1, yaw: 0, pitch: 0, roll: 0), positioning: .headLocked)
         let identity = simd_quatf(angle: 0, axis: SIMD3<Float>(0, 1, 0))
         let yaw = simd_quatf(angle: .pi / 2, axis: SIMD3<Float>(0, 1, 0))
         let headModel = SpatialMath.modelMatrix(for: window, headOrientation: yaw)
