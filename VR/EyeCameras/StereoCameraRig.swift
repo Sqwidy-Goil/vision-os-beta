@@ -38,8 +38,8 @@ struct StereoCameraRig {
         return simd_float4x4(columns: (
             SIMD4<Float>(focalLength / aspect, 0, 0, 0),
             SIMD4<Float>(0, focalLength, 0, 0),
-            SIMD4<Float>(0, 0, a, b),
-            SIMD4<Float>(0, 0, -1, 0)
+            SIMD4<Float>(0, 0, a, -1),
+            SIMD4<Float>(0, 0, b, 0)
         ))
     }
 }
