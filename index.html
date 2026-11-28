@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+    <meta name="theme-color" content="#07111f" />
+    <meta name="background-color" content="#07111f" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="VISI0N OS" />
+    <meta name="description" content="A private spatial computing environment for iPhone Safari." />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/vision.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icons/vision-180.png" />
+    <title>VISI0N OS BETA</title>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="spatial-canvas" aria-label="Interactive 3D spatial workspace"></canvas>
+      <div id="dom-layer" aria-hidden="true"></div>
+      <div class="vignette"></div>
+
+      <header class="topbar glass">
+        <div class="brand">
+          <span class="brand-mark">V</span>
+          <div>
+            <strong>VISI0N OS</strong>
+            <span class="beta">BETA</span>
+          </div>
+        </div>
+        <div class="topbar-status">
+          <span id="connection-status" class="status-pill"><i></i><span>Online</span></span>
+          <span id="camera-status" class="status-pill muted"><i></i><span>Camera off</span></span>
+          <span id="motion-status" class="status-pill muted"><i></i><span>Touch look</span></span>
+          <span id="spatial-status" class="status-pill muted"><i></i><span>Spatial off</span></span>
+        </div>
+        <div class="topbar-actions">
+          <button id="motion-button" class="icon-button" type="button" aria-label="Enable motion controls" title="Motion controls">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/><circle cx="12" cy="12" r="4"/></svg>
+          </button>
+          <button id="camera-button" class="icon-button" type="button" aria-label="Enable rear camera" title="Rear camera">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h4l2-3h4l2 3h4v13H4z"/><circle cx="12" cy="13" r="4"/></svg>
+          </button>
+          <button id="hands-button" class="icon-button" type="button" aria-label="Enable hand controls" aria-pressed="false" title="Hand controls">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12V5a1.5 1.5 0 0 1 3 0v6-8a1.5 1.5 0 0 1 3 0v8-6a1.5 1.5 0 0 1 3 0v7-4a1.5 1.5 0 0 1 3 0v7c0 4-2.5 7-6.5 7H12c-2 0-3.2-.7-4.5-2.2L4 15.5a1.7 1.7 0 0 1 2.5-2.3L8 14.5Z"/></svg>
+          </button>
+          <button id="device-button" class="icon-button" type="button" aria-label="Authorize Bluetooth devices" aria-pressed="false" title="Bluetooth devices and game controllers">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 7 8 10-4 4V3l4 4-8 10"/><path d="M5 6a8 8 0 0 0 0 12M19 6a8 8 0 0 1 0 12"/></svg>
+          </button>
+          <button id="guide-button" class="icon-button" type="button" aria-label="Open controls guide" title="Controls guide">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4 2c-1 .6-1.5 1-1.5 2M12 17h.01"/></svg>
+          </button>
+          <button id="settings-button" class="icon-button" type="button" aria-label="Open settings" title="Settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path d="m19 13 2 1-2 3-2-1a7 7 0 0 1-3 1l-1 2h-4l-1-2a7 7 0 0 1-3-1l-2 1-2-3 2-1a7 7 0 0 1 0-4l-2-1 2-3 2 1a7 7 0 0 1 3-1l1-2h4l1 2a7 7 0 0 1 3 1l2-1 2 3-2 1a7 7 0 0 1 0 4Z"/></svg>
+          </button>
+          <button id="vr-button" class="vr-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h18v8H3zM7 8l1-3h8l1 3"/><circle cx="7" cy="12" r="1.5"/><circle cx="17" cy="12" r="1.5"/></svg>
+            <span>Enter VR</span>
+          </button>
+        </div>
+      </header>
+
+      <aside id="launcher" class="launcher glass" aria-label="Application launcher">
+        <div class="panel-heading">
+          <div><span class="eyebrow">SPATIAL WORKSPACE</span><h1>Launch something</h1></div>
+          <button id="launcher-close" class="icon-button small" type="button" aria-label="Close launcher">×</button>
+        </div>
+        <div id="launcher-grid" class="launcher-grid"></div>
+        <p class="launcher-hint">Each app opens as an independent floating window. Drag to move, pinch to resize, scroll to change depth.</p>
+      </aside>
+
+      <aside id="utility-panel" class="utility-panel glass" aria-label="Workspace tools">
+        <div class="panel-heading">
+          <div><span id="utility-eyebrow" class="eyebrow">WORKSPACE TOOLS</span><h2 id="utility-title">Library</h2></div>
+          <button id="utility-close" class="icon-button small" type="button" aria-label="Close tool panel">×</button>
+        </div>
+        <div id="utility-content"></div>
+      </aside>
+
+      <div id="window-empty" class="empty-state">
+        <div class="empty-orbit"><span></span><span></span><span></span></div>
+        <h2>Your space is ready</h2>
+        <p>Open the launcher to create your first spatial window.</p>
+        <button id="empty-launch" class="primary-button" type="button">Open launcher</button>
+      </div>
+
+      <div id="toast" class="toast glass" role="status" aria-live="polite"></div>
+      <div id="gaze-reticle" class="gaze-reticle"><span></span></div>
+      <div id="gaze-progress" class="gaze-progress"></div>
+      <div id="hand-cursor" class="hand-cursor hidden" aria-hidden="true"><span></span><i></i></div>
+      <canvas id="hand-layer" class="hand-layer" aria-hidden="true"></canvas>
+
+      <footer class="dock-wrap">
+        <div class="dock glass">
+          <button id="launcher-button" class="dock-button active" type="button" aria-label="Open launcher">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>
+            <span>Apps</span>
+          </button>
+          <button id="windows-button" class="dock-button" type="button" aria-label="Open window manager">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M8 9v11"/></svg>
+            <span>Windows</span>
+          </button>
+          <button id="environment-button" class="dock-button" type="button" aria-label="Open environment selector">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>
+            <span>Space</span>
+          </button>
+          <button id="scan-button" class="dock-button" type="button" aria-label="Open 3D scanner">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5m6 0h5v5M4 15v5h5m6 0h5v-5"/><circle cx="12" cy="12" r="3"/></svg>
+            <span>Scan</span>
+          </button>
+          <button id="library-button" class="dock-button" type="button" aria-label="Open shared media library">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM8 5v14M12 9h5M12 13h5"/></svg>
+            <span>Library</span>
+          </button>
+          <button id="ai-button" class="dock-button" type="button" aria-label="Open AI assistant">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2Z"/><path d="m19 17 .8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8Z"/></svg>
+            <span>AI</span>
+          </button>
+          <button id="keyboard-button" class="dock-button" type="button" aria-label="Open on-screen keyboard">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 16h8"/></svg>
+            <span>Keyboard</span>
+          </button>
+          <button id="pin-button" class="dock-button" type="button" aria-label="Anchor focused window" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 3 6 0-1 6 4 4v2H6v-2l4-4Z"/><path d="M12 15v6"/></svg>
+            <span>Anchor</span>
+          </button>
+        </div>
+      </footer>
+
+      <section id="settings-panel" class="settings-panel glass" aria-label="Settings">
+        <div class="panel-heading">
+          <div><span class="eyebrow">CONTROL CENTER</span><h2>Space settings</h2></div>
+          <button id="settings-close" class="icon-button small" type="button" aria-label="Close settings">×</button>
+        </div>
+        <label class="setting-row"><span>Motion sensitivity</span><input id="motion-sensitivity" type="range" min="0.25" max="2" step="0.05" value="1" /></label>
+        <label class="setting-row"><span>Render quality</span><select id="quality-select"><option value="auto">Adaptive</option><option value="high">High</option><option value="low">Battery saver</option></select></label>
+        <div class="settings-divider"></div>
+        <span class="eyebrow">INTERFACE & ENVIRONMENT</span>
+        <div class="setting-row"><span>Interface palette</span><div id="palette-control" class="palette-grid" role="group" aria-label="Interface color palette"></div></div>
+        <label class="setting-row"><span>Glass transparency <output id="glass-transparency-output">78%</output></span><input id="glass-transparency-range" type="range" min="0.4" max="0.95" step="0.01" value="0.78" /></label>
+        <label class="setting-row"><span>Glass blur <output id="glass-blur-output">26 px</output></span><input id="glass-blur-range" type="range" min="0" max="40" step="1" value="26" /></label>
+        <label class="setting-row"><span>New window scale <output id="window-scale-output">100%</output></span><input id="window-scale-range" type="range" min="0.7" max="1.3" step="0.05" value="1" /></label>
+        <label class="setting-row"><span>Environment exposure <output id="environment-exposure-output">1.00</output></span><input id="environment-exposure-range" type="range" min="0.6" max="1.6" step="0.05" value="1" /></label>
+        <label class="setting-row"><span>Hand smoothing <output id="hand-smoothing-output">0.30</output></span><input id="hand-smoothing-range" type="range" min="0" max="0.75" step="0.05" value="0.3" /></label>
+        <label class="setting-row"><span>Hand activation delay <output id="dwell-time-output">0.9 s</output></span><input id="dwell-time-range" type="range" min="0.4" max="1.6" step="0.1" value="0.9" /></label>
+        <label class="setting-row"><span>New window anchoring</span><select id="head-lock-select"><option value="false">World-locked</option><option value="true">Head-locked</option></select></label>
+        <label class="setting-row"><span>Keyboard layout</span><select id="keyboard-layout-select"><option value="azerty">French AZERTY</option><option value="qwerty">QWERTY</option></select></label>
+        <label class="setting-row"><span>VR taskbar position</span><select id="taskbar-mode-select"><option value="follow">Follow head</option><option value="world">World anchored</option></select></label>
+        <button id="taskbar-reposition-button" class="secondary-button full" type="button">Reposition taskbar in front of me</button>
+        <label class="setting-row"><span><input id="window-inertia-toggle" type="checkbox" /> Controlled window inertia</span></label>
+        <label class="setting-row"><span><input id="window-snapping-toggle" type="checkbox" /> Window snapping</span></label>
+        <div class="settings-divider"></div>
+        <span class="eyebrow">SOUND & DEVICES</span>
+        <label class="setting-row"><span><input id="ui-sound-toggle" type="checkbox" /> Interface sounds</span></label>
+        <label class="setting-row"><span>Sound volume <output id="ui-sound-volume-output">35%</output></span><input id="ui-sound-volume" type="range" min="0" max="1" step="0.05" value="0.35" /></label>
+        <button id="device-access-button" class="secondary-button full" type="button">Authorize Bluetooth devices</button>
+        <p id="device-status-text" class="settings-note">Checking device support…</p>
+        <p id="device-note" class="settings-note">Browsers cannot grant Wi-Fi scanning or joining permission. Bluetooth opens a device chooser where supported; controllers paired in system settings appear automatically through the Gamepad API.</p>
+        <div class="settings-divider"></div>
+        <span class="eyebrow">SPATIAL INTELLIGENCE</span>
+        <label class="setting-row"><span>Analysis mode</span><select id="spatial-mode-select"><option value="off">Off • stop analysis</option><option value="economy">Economy • orientation only</option><option value="camera">Camera • relative tracking</option><option value="full">Full • calibrated companion required</option></select></label>
+        <label class="setting-row"><span><input id="environment-map-toggle" type="checkbox" /> Show observed environment map</span></label>
+        <label class="setting-row"><span><input id="companion-enabled-toggle" type="checkbox" /> Enable optional external LiDAR companion</span></label>
+        <button id="companion-open-button" class="secondary-button full" type="button">Open LiDAR pairing and status</button>
+        <p id="spatial-note" class="settings-note">Camera mode estimates relative motion, not metric depth. Gyroscope-only tracking cannot preserve permanent position. Full mode needs a calibrated local LiDAR companion; VR stays available when analysis is off.</p>
+        <div class="settings-divider"></div>
+        <span class="eyebrow">CARDBOARD VR</span>
+        <label class="setting-row"><span>Eye separation <output id="ipd-output">64 mm</output></span><input id="ipd-range" type="range" min="50" max="80" step="1" value="64" /></label>
+        <label class="setting-row"><span>Screen distance <output id="distance-output">6.0 m</output></span><input id="distance-range" type="range" min="3" max="12" step="0.5" value="6" /></label>
+        <label class="setting-row"><span>Field of view <output id="fov-output">70°</output></span><input id="fov-range" type="range" min="50" max="100" step="1" value="70" /></label>
+        <label class="setting-row"><span>Lens correction <output id="distortion-output">0.08</output></span><input id="distortion-range" type="range" min="0" max="0.3" step="0.01" value="0.08" /></label>
+        <button id="surround-button" class="secondary-button full" type="button">Arrange windows around me</button>
+        <button id="anchor-button" class="secondary-button full" type="button">Anchor / release focused window</button>
+        <button id="calibrate-button" class="secondary-button full" type="button">Recalibrate orientation</button>
+        <button id="install-button" class="secondary-button full" type="button">How to install on iPhone</button>
+        <p id="settings-note" class="settings-note">Motion access requires a user gesture on iOS. Camera frames and files stay on this device. Hands downloads its model on first use. Bluetooth access may require HTTPS and a direct browser gesture.</p>
+      </section>
+
+      <div id="orientation-warning" class="orientation-warning glass">
+        <div class="rotate-icon">↻</div>
+        <h2>Rotate to landscape</h2>
+        <p>VISI0N OS is designed for iPhone in landscape, especially inside Cardboard.</p>
+      </div>
+
+      <div id="vr-hud" class="vr-hud">
+        <button id="vr-exit" class="vr-exit glass" type="button">Exit VR</button>
+        <div class="vr-hud-label">CARDBOARD MODE <span>•</span> GAZE + DWELL ENABLED</div>
+      </div>
+
+      <div id="modal-backdrop" class="modal-backdrop">
+        <section id="modal" class="modal glass" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+          <div class="panel-heading"><h2 id="modal-title"></h2><button id="modal-close" class="icon-button small" type="button" aria-label="Close dialog">×</button></div>
+          <div id="modal-content"></div>
+        </section>
+      </div>
+
+      <div id="boot" class="boot-screen">
+        <div class="boot-mark">V</div>
+        <div class="boot-copy"><strong>VISI0N OS</strong><span>Preparing your spatial workspace</span></div>
+        <div class="boot-progress"><i></i></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

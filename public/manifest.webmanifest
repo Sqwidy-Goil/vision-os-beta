@@ -1,0 +1,33 @@
+{
+  "id": "./",
+  "name": "VISI0N OS BETA",
+  "short_name": "VISI0N OS",
+  "description": "A private spatial computing environment for iPhone Safari.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "theme_color": "#07111f",
+  "background_color": "#07111f",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "./icons/vision-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/vision-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/vision.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

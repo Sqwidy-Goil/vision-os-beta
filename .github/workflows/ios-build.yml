@@ -1,0 +1,241 @@
+name: Build VISI0N SPATIAL for iOS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "App/**"
+      - "Config/**"
+      - "Core/**"
+      - "Interface/**"
+      - "Modules/**"
+      - "Resources/**"
+      - "Scanning/**"
+      - "Spatial/**"
+      - "Tracking/**"
+      - "VR/**"
+      - "tests/**"
+      - "VISI0NSpatial.xcodeproj/**"
+      - "scripts/validate-native-project.cjs"
+      - ".github/workflows/ios-build.yml"
+  pull_request:
+    paths:
+      - "App/**"
+      - "Config/**"
+      - "Core/**"
+      - "Interface/**"
+      - "Modules/**"
+      - "Resources/**"
+      - "Scanning/**"
+      - "Spatial/**"
+      - "Tracking/**"
+      - "VR/**"
+      - "tests/**"
+      - "VISI0NSpatial.xcodeproj/**"
+      - "scripts/validate-native-project.cjs"
+      - ".github/workflows/ios-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  simulator:
+    name: Swift, Metal, unit and UI tests
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select --switch /Applications/Xcode_16.4.app
+          xcodebuild -version
+
+      - name: Ensure iOS Simulator runtime
+        run: |
+          if ! xcrun simctl list devices available | grep -q 'iPhone 16e'; then
+            xcodebuild -downloadPlatform iOS
+          fi
+
+      - name: Validate project references
+        run: node scripts/validate-native-project.cjs
+
+      - name: List targets and schemes
+        run: xcodebuild -list -project VISI0NSpatial.xcodeproj
+
+      - name: Build and test on iPhone 16e Simulator
+        run: |
+          set -o pipefail
+          mkdir -p build
+          xcodebuild test \
+            -project VISI0NSpatial.xcodeproj \
+            -scheme VISI0NSpatial \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16e' \
+            -resultBundlePath build/TestResults.xcresult \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-test-results
+          path: build/TestResults.xcresult
+          retention-days: 14
+
+  unsigned-archive:
+    name: Unsigned device IPA
+    if: vars.IOS_SIGNING_ENABLED != 'true'
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select --switch /Applications/Xcode_16.4.app
+          xcodebuild -version
+
+      - name: Build unsigned device archive
+        run: |
+          set -euo pipefail
+          mkdir -p build
+          xcodebuild archive \
+            -project VISI0NSpatial.xcodeproj \
+            -scheme VISI0NSpatial \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath build/VISI0NSpatial-unsigned.xcarchive \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            DEVELOPMENT_TEAM=""
+
+      - name: Package IPA
+        run: |
+          set -euo pipefail
+          app_path="build/VISI0NSpatial-unsigned.xcarchive/Products/Applications/VISI0NSpatial.app"
+          test -d "$app_path"
+          mkdir -p build/unsigned-ipa/Payload
+          cp -R "$app_path" build/unsigned-ipa/Payload/
+          (cd build/unsigned-ipa && zip -q -r ../VISI0NSpatial-unsigned.ipa Payload)
+          unzip -l build/VISI0NSpatial-unsigned.ipa | grep -q 'Payload/VISI0NSpatial.app/Info.plist'
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: VISI0NSpatial-ipa
+          path: build/VISI0NSpatial-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 30
+
+  signed-archive:
+    name: Signed archive and IPA
+    if: vars.IOS_SIGNING_ENABLED == 'true'
+    needs: simulator
+    runs-on: macos-15
+    timeout-minutes: 50
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select --switch /Applications/Xcode_16.4.app
+          xcodebuild -version
+
+      - name: Create temporary signing keychain
+        env:
+          CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$CERTIFICATE_BASE64" | base64 --decode > "$RUNNER_TEMP/distribution.p12"
+          security create-keychain -p "$CERTIFICATE_PASSWORD" "$RUNNER_TEMP/vision-signing.keychain-db"
+          security set-keychain-settings -lut 21600 "$RUNNER_TEMP/vision-signing.keychain-db"
+          security unlock-keychain -p "$CERTIFICATE_PASSWORD" "$RUNNER_TEMP/vision-signing.keychain-db"
+          security import "$RUNNER_TEMP/distribution.p12" -P "$CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k "$RUNNER_TEMP/vision-signing.keychain-db"
+          security list-keychain -d user -s "$RUNNER_TEMP/vision-signing.keychain-db"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$CERTIFICATE_PASSWORD" "$RUNNER_TEMP/vision-signing.keychain-db" >/dev/null
+
+      - name: Install provisioning profile
+        env:
+          PROFILE_NAME: ${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}
+          PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          printf '%s' "$PROFILE_BASE64" | base64 --decode > "$RUNNER_TEMP/profile.mobileprovision"
+          cp "$RUNNER_TEMP/profile.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_NAME.mobileprovision"
+
+      - name: Archive
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          PROFILE_NAME: ${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}
+        run: |
+          set -o pipefail
+          mkdir -p build
+          xcodebuild archive \
+            -project VISI0NSpatial.xcodeproj \
+            -scheme VISI0NSpatial \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath build/VISI0NSpatial.xcarchive \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" \
+            PRODUCT_BUNDLE_IDENTIFIER=com.visionspatial.iphone
+
+      - name: Export IPA
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          PROFILE_NAME: ${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}
+          API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$API_KEY_P8" > "$RUNNER_TEMP/AuthKey_$API_KEY_ID.p8"
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>export</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>teamID</key><string>$TEAM_ID</string>
+            <key>apiKey</key><string>$API_KEY_ID</string>
+            <key>apiIssuer</key><string>$API_ISSUER_ID</string>
+            <key>provisioningProfiles</key><dict>
+              <key>com.visionspatial.iphone</key><string>$PROFILE_NAME</string>
+            </dict>
+          </dict></plist>
+          PLIST
+          xcodebuild -exportArchive \
+            -archivePath build/VISI0NSpatial.xcarchive \
+            -exportPath build/export \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -authenticationKeyPath "$RUNNER_TEMP/AuthKey_$API_KEY_ID.p8" \
+            -authenticationKeyID "$API_KEY_ID" \
+            -authenticationKeyIssuerID "$API_ISSUER_ID"
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: VISI0NSpatial-signed-ipa
+          path: build/export/*.ipa
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Remove temporary signing keychain
+        if: always()
+        run: security delete-keychain "$RUNNER_TEMP/vision-signing.keychain-db" || true

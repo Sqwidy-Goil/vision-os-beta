@@ -1,0 +1,541 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1A2B3C4D5E6F000000000001 /* VISI0NSpatialApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001001 /* VISI0NSpatialApp.swift */; };
+		1A2B3C4D5E6F000000000002 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001002 /* AppCoordinator.swift */; };
+		1A2B3C4D5E6F000000000010 /* StereoCameraRig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001010 /* StereoCameraRig.swift */; };
+		1A2B3C4D5E6F000000000011 /* CalibrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001011 /* CalibrationView.swift */; };
+		1A2B3C4D5E6F000000000012 /* MetalSpatialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001012 /* MetalSpatialView.swift */; };
+		1A2B3C4D5E6F000000000013 /* RenderFrameSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001013 /* RenderFrameSnapshot.swift */; };
+		1A2B3C4D5E6F000000000014 /* SpatialShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001014 /* SpatialShaders.metal */; };
+		1A2B3C4D5E6F000000000015 /* StereoscopicRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001015 /* StereoscopicRenderer.swift */; };
+		1A2B3C4D5E6F000000000016 /* WindowTextureFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001016 /* WindowTextureFactory.swift */; };
+		1A2B3C4D5E6F000000000020 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001020 /* Assets.xcassets */; };
+		1A2B3C4D5E6F000000000021 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001021 /* PrivacyInfo.xcprivacy */; };
+		1A2B3C4D5E6F000000000030 /* SpatialWindowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001030 /* SpatialWindowTests.swift */; };
+		1A2B3C4D5E6F000000000031 /* SpatialMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001031 /* SpatialMathTests.swift */; };
+		1A2B3C4D5E6F000000000032 /* StereoRigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001032 /* StereoRigTests.swift */; };
+		1A2B3C4D5E6F000000000033 /* HandGestureProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001033 /* HandGestureProcessorTests.swift */; };
+		1A2B3C4D5E6F000000000034 /* WindowManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001034 /* WindowManagerTests.swift */; };
+		1A2B3C4D5E6F000000000035 /* AdaptiveQualityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001035 /* AdaptiveQualityTests.swift */; };
+		1A2B3C4D5E6F000000000036 /* WindowTextureFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001036 /* WindowTextureFactoryTests.swift */; };
+		1A2B3C4D5E6F000000000037 /* DocumentStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001037 /* DocumentStoreTests.swift */; };
+		1A2B3C4D5E6F000000000038 /* ScanMetadataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001038 /* ScanMetadataTests.swift */; };
+		1A2B3C4D5E6F000000000040 /* VISI0NSpatialUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F000000001040 /* VISI0NSpatialUITests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1A2B3C4D5E6F000000002001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A2B3C4D5E6F000000003001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1A2B3C4D5E6F000000004001;
+			remoteInfo = VISI0NSpatial;
+		};
+		1A2B3C4D5E6F000000002002 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A2B3C4D5E6F000000003001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1A2B3C4D5E6F000000004001;
+			remoteInfo = VISI0NSpatial;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1A2B3C4D5E6F000000001001 /* VISI0NSpatialApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VISI0NSpatialApp.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001002 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001010 /* StereoCameraRig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StereoCameraRig.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001011 /* CalibrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalibrationView.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001012 /* MetalSpatialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalSpatialView.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001013 /* RenderFrameSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderFrameSnapshot.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001014 /* SpatialShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = SpatialShaders.metal; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001015 /* StereoscopicRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StereoscopicRenderer.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001016 /* WindowTextureFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowTextureFactory.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001020 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Resources/Assets.xcassets; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001021 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Config/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001030 /* SpatialWindowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpatialWindowTests.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001031 /* SpatialMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpatialMathTests.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001032 /* StereoRigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StereoRigTests.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001033 /* HandGestureProcessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandGestureProcessorTests.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001034 /* WindowManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowManagerTests.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001035 /* AdaptiveQualityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveQualityTests.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001036 /* WindowTextureFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowTextureFactoryTests.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001037 /* DocumentStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentStoreTests.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001038 /* ScanMetadataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanMetadataTests.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001040 /* VISI0NSpatialUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VISI0NSpatialUITests.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000001050 /* VISI0NSpatial.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VISI0NSpatial.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A2B3C4D5E6F000000001051 /* VISI0NSpatialTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VISI0NSpatialTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A2B3C4D5E6F000000001052 /* VISI0NSpatialUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VISI0NSpatialUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		1A2B3C4D5E6F000000005004 /* Core */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Core; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000005005 /* Interface */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Interface; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000005006 /* Spatial */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Spatial; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000005011 /* Modules */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Modules; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000005012 /* Scanning */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Scanning; sourceTree = "<group>"; };
+		1A2B3C4D5E6F000000005013 /* Tracking */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Tracking; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1A2B3C4D5E6F000000006001 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		1A2B3C4D5E6F000000006002 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		1A2B3C4D5E6F000000006003 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1A2B3C4D5E6F000000003002 /* Main Group */ = {
+			isa = PBXGroup;
+			children = (
+				1A2B3C4D5E6F000000005002 /* Products */,
+				1A2B3C4D5E6F000000005003 /* App */,
+				1A2B3C4D5E6F000000005004 /* Core */,
+				1A2B3C4D5E6F000000005005 /* Interface */,
+				1A2B3C4D5E6F000000005006 /* Spatial */,
+				1A2B3C4D5E6F000000005007 /* VR */,
+				1A2B3C4D5E6F000000005011 /* Modules */,
+				1A2B3C4D5E6F000000005012 /* Scanning */,
+				1A2B3C4D5E6F000000005013 /* Tracking */,
+				1A2B3C4D5E6F000000001020 /* Assets.xcassets */,
+				1A2B3C4D5E6F000000001021 /* PrivacyInfo.xcprivacy */,
+				1A2B3C4D5E6F000000005010 /* Tests */,
+			);
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F000000005002 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1A2B3C4D5E6F000000001050 /* VISI0NSpatial.app */,
+				1A2B3C4D5E6F000000001051 /* VISI0NSpatialTests.xctest */,
+				1A2B3C4D5E6F000000001052 /* VISI0NSpatialUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F000000005003 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				1A2B3C4D5E6F000000001001 /* VISI0NSpatialApp.swift */,
+				1A2B3C4D5E6F000000001002 /* AppCoordinator.swift */,
+				1A2B3C4D5E6F000000001003 /* Info.plist */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F000000005007 /* VR */ = {
+			isa = PBXGroup;
+			children = (
+				1A2B3C4D5E6F000000005009 /* StereoscopicRenderer */,
+				1A2B3C4D5E6F000000005014 /* EyeCameras */,
+				1A2B3C4D5E6F000000005015 /* Calibration */,
+			);
+			path = VR;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F000000005009 /* StereoscopicRenderer */ = {
+			isa = PBXGroup;
+			children = (
+				1A2B3C4D5E6F000000001012 /* MetalSpatialView.swift */,
+				1A2B3C4D5E6F000000001013 /* RenderFrameSnapshot.swift */,
+				1A2B3C4D5E6F000000001014 /* SpatialShaders.metal */,
+				1A2B3C4D5E6F000000001015 /* StereoscopicRenderer.swift */,
+				1A2B3C4D5E6F000000001016 /* WindowTextureFactory.swift */,
+			);
+			path = StereoscopicRenderer;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F000000005014 /* EyeCameras */ = {
+			isa = PBXGroup;
+			children = (1A2B3C4D5E6F000000001010 /* StereoCameraRig.swift */);
+			path = EyeCameras;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F000000005015 /* Calibration */ = {
+			isa = PBXGroup;
+			children = (1A2B3C4D5E6F000000001011 /* CalibrationView.swift */);
+			path = Calibration;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F000000005010 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				1A2B3C4D5E6F000000005016 /* VISI0NSpatialTests */,
+				1A2B3C4D5E6F000000005017 /* VISI0NSpatialUITests */,
+			);
+			path = tests;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F000000005016 /* VISI0NSpatialTests */ = {
+			isa = PBXGroup;
+			children = (
+				1A2B3C4D5E6F000000001030 /* SpatialWindowTests.swift */,
+				1A2B3C4D5E6F000000001031 /* SpatialMathTests.swift */,
+				1A2B3C4D5E6F000000001032 /* StereoRigTests.swift */,
+				1A2B3C4D5E6F000000001033 /* HandGestureProcessorTests.swift */,
+				1A2B3C4D5E6F000000001034 /* WindowManagerTests.swift */,
+				1A2B3C4D5E6F000000001035 /* AdaptiveQualityTests.swift */,
+				1A2B3C4D5E6F000000001036 /* WindowTextureFactoryTests.swift */,
+				1A2B3C4D5E6F000000001037 /* DocumentStoreTests.swift */,
+				1A2B3C4D5E6F000000001038 /* ScanMetadataTests.swift */,
+			);
+			path = VISI0NSpatialTests;
+			sourceTree = "<group>";
+		};
+		1A2B3C4D5E6F000000005017 /* VISI0NSpatialUITests */ = {
+			isa = PBXGroup;
+			children = (1A2B3C4D5E6F000000001040 /* VISI0NSpatialUITests.swift */);
+			path = VISI0NSpatialUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1A2B3C4D5E6F000000004001 /* VISI0NSpatial */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A2B3C4D5E6F000000008001 /* Build configuration list for PBXNativeTarget "VISI0NSpatial" */;
+			buildPhases = (
+				1A2B3C4D5E6F000000007001 /* Sources */,
+				1A2B3C4D5E6F000000006001 /* Frameworks */,
+				1A2B3C4D5E6F000000009001 /* Resources */,
+			);
+			buildRules = ();
+			dependencies = ();
+			fileSystemSynchronizedGroups = (
+				1A2B3C4D5E6F000000005004 /* Core */,
+				1A2B3C4D5E6F000000005005 /* Interface */,
+				1A2B3C4D5E6F000000005006 /* Spatial */,
+				1A2B3C4D5E6F000000005011 /* Modules */,
+				1A2B3C4D5E6F000000005012 /* Scanning */,
+				1A2B3C4D5E6F000000005013 /* Tracking */,
+			);
+			name = VISI0NSpatial;
+			productName = VISI0NSpatial;
+			productReference = 1A2B3C4D5E6F000000001050 /* VISI0NSpatial.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1A2B3C4D5E6F000000004002 /* VISI0NSpatialTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A2B3C4D5E6F000000008002 /* Build configuration list for PBXNativeTarget "VISI0NSpatialTests" */;
+			buildPhases = (
+				1A2B3C4D5E6F000000007002 /* Sources */,
+				1A2B3C4D5E6F000000006002 /* Frameworks */,
+				1A2B3C4D5E6F000000009002 /* Resources */,
+			);
+			buildRules = ();
+			dependencies = (1A2B3C4D5E6F000000002101 /* PBXTargetDependency */);
+			name = VISI0NSpatialTests;
+			productName = VISI0NSpatialTests;
+			productReference = 1A2B3C4D5E6F000000001051 /* VISI0NSpatialTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		1A2B3C4D5E6F000000004003 /* VISI0NSpatialUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A2B3C4D5E6F000000008003 /* Build configuration list for PBXNativeTarget "VISI0NSpatialUITests" */;
+			buildPhases = (
+				1A2B3C4D5E6F000000007003 /* Sources */,
+				1A2B3C4D5E6F000000006003 /* Frameworks */,
+				1A2B3C4D5E6F000000009003 /* Resources */,
+			);
+			buildRules = ();
+			dependencies = (1A2B3C4D5E6F000000002102 /* PBXTargetDependency */);
+			name = VISI0NSpatialUITests;
+			productName = VISI0NSpatialUITests;
+			productReference = 1A2B3C4D5E6F000000001052 /* VISI0NSpatialUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1A2B3C4D5E6F000000003001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					1A2B3C4D5E6F000000004001 = {CreatedOnToolsVersion = 16.0; };
+					1A2B3C4D5E6F000000004002 = {CreatedOnToolsVersion = 16.0; TestTargetID = 1A2B3C4D5E6F000000004001; };
+					1A2B3C4D5E6F000000004003 = {CreatedOnToolsVersion = 16.0; TestTargetID = 1A2B3C4D5E6F000000004001; };
+				};
+			};
+			buildConfigurationList = 1A2B3C4D5E6F000000008004 /* Build configuration list for PBXProject "VISI0NSpatial" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (en, Base);
+			mainGroup = 1A2B3C4D5E6F000000003002 /* Main Group */;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 1A2B3C4D5E6F000000005002 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1A2B3C4D5E6F000000004001 /* VISI0NSpatial */,
+				1A2B3C4D5E6F000000004002 /* VISI0NSpatialTests */,
+				1A2B3C4D5E6F000000004003 /* VISI0NSpatialUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1A2B3C4D5E6F000000009001 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (1A2B3C4D5E6F000000000020 /* Assets.xcassets in Resources */, 1A2B3C4D5E6F000000000021 /* PrivacyInfo.xcprivacy in Resources */); runOnlyForDeploymentPostprocessing = 0; };
+		1A2B3C4D5E6F000000009002 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		1A2B3C4D5E6F000000009003 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1A2B3C4D5E6F000000007001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A2B3C4D5E6F000000000001 /* VISI0NSpatialApp.swift in Sources */,
+				1A2B3C4D5E6F000000000002 /* AppCoordinator.swift in Sources */,
+				1A2B3C4D5E6F000000000010 /* StereoCameraRig.swift in Sources */,
+				1A2B3C4D5E6F000000000011 /* CalibrationView.swift in Sources */,
+				1A2B3C4D5E6F000000000012 /* MetalSpatialView.swift in Sources */,
+				1A2B3C4D5E6F000000000013 /* RenderFrameSnapshot.swift in Sources */,
+				1A2B3C4D5E6F000000000014 /* SpatialShaders.metal in Sources */,
+				1A2B3C4D5E6F000000000015 /* StereoscopicRenderer.swift in Sources */,
+				1A2B3C4D5E6F000000000016 /* WindowTextureFactory.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A2B3C4D5E6F000000007002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A2B3C4D5E6F000000000030 /* SpatialWindowTests.swift in Sources */,
+				1A2B3C4D5E6F000000000031 /* SpatialMathTests.swift in Sources */,
+				1A2B3C4D5E6F000000000032 /* StereoRigTests.swift in Sources */,
+				1A2B3C4D5E6F000000000033 /* HandGestureProcessorTests.swift in Sources */,
+				1A2B3C4D5E6F000000000034 /* WindowManagerTests.swift in Sources */,
+				1A2B3C4D5E6F000000000035 /* AdaptiveQualityTests.swift in Sources */,
+				1A2B3C4D5E6F000000000036 /* WindowTextureFactoryTests.swift in Sources */,
+				1A2B3C4D5E6F000000000037 /* DocumentStoreTests.swift in Sources */,
+				1A2B3C4D5E6F000000000038 /* ScanMetadataTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A2B3C4D5E6F000000007003 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (1A2B3C4D5E6F000000000040 /* VISI0NSpatialUITests.swift in Sources */); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1A2B3C4D5E6F000000002101 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = 1A2B3C4D5E6F000000004001 /* VISI0NSpatial */; targetProxy = 1A2B3C4D5E6F000000002001 /* PBXContainerItemProxy */; };
+		1A2B3C4D5E6F000000002102 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = 1A2B3C4D5E6F000000004001 /* VISI0NSpatial */; targetProxy = 1A2B3C4D5E6F000000002002 /* PBXContainerItemProxy */; };
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1A2B3C4D5E6F00000000A001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_TESTABILITY = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
+				MARKETING_VERSION = 0.1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.visionspatial.iphone;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		1A2B3C4D5E6F00000000A002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_TESTABILITY = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
+				MARKETING_VERSION = 0.1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.visionspatial.iphone;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		1A2B3C4D5E6F00000000A003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.visionspatial.iphone.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VISI0NSpatial.app/VISI0NSpatial";
+			};
+			name = Debug;
+		};
+		1A2B3C4D5E6F00000000A004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.visionspatial.iphone.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VISI0NSpatial.app/VISI0NSpatial";
+			};
+			name = Release;
+		};
+		1A2B3C4D5E6F00000000A005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.visionspatial.iphone.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = VISI0NSpatial;
+			};
+			name = Debug;
+		};
+		1A2B3C4D5E6F00000000A006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.visionspatial.iphone.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = VISI0NSpatial;
+			};
+			name = Release;
+		};
+		1A2B3C4D5E6F00000000A007 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("DEBUG=1", "$(inherited)");
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		1A2B3C4D5E6F00000000A008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1A2B3C4D5E6F000000008001 /* Build configuration list for PBXNativeTarget "VISI0NSpatial" */ = {isa = XCConfigurationList; buildConfigurations = (1A2B3C4D5E6F00000000A001 /* Debug */, 1A2B3C4D5E6F00000000A002 /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		1A2B3C4D5E6F000000008002 /* Build configuration list for PBXNativeTarget "VISI0NSpatialTests" */ = {isa = XCConfigurationList; buildConfigurations = (1A2B3C4D5E6F00000000A003 /* Debug */, 1A2B3C4D5E6F00000000A004 /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		1A2B3C4D5E6F000000008003 /* Build configuration list for PBXNativeTarget "VISI0NSpatialUITests" */ = {isa = XCConfigurationList; buildConfigurations = (1A2B3C4D5E6F00000000A005 /* Debug */, 1A2B3C4D5E6F00000000A006 /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		1A2B3C4D5E6F000000008004 /* Build configuration list for PBXProject "VISI0NSpatial" */ = {isa = XCConfigurationList; buildConfigurations = (1A2B3C4D5E6F00000000A007 /* Debug */, 1A2B3C4D5E6F00000000A008 /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+	};
+	rootObject = 1A2B3C4D5E6F000000003001 /* Project object */;
+}
