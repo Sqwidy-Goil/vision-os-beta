@@ -32,7 +32,9 @@ final class StereoRigTests: XCTestCase {
         let world = SIMD4<Float>(0, 0, -3.4, 1)
         let leftClip = left.viewProjection * world
         let rightClip = right.viewProjection * world
-        XCTAssertLessThan(leftClip.x / leftClip.w, rightClip.x / rightClip.w)
+        XCTAssertGreaterThan(leftClip.w, 0)
+        XCTAssertGreaterThan(rightClip.w, 0)
+        XCTAssertGreaterThan(leftClip.x / leftClip.w, rightClip.x / rightClip.w)
     }
 
     func testLensCorrectionLeavesCenterAndExpandsEdges() {

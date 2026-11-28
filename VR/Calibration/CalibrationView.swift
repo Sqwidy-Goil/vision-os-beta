@@ -51,6 +51,7 @@ struct CalibrationView: View {
                             .multilineTextAlignment(.center)
                         Button(countdown > 0 ? "Enter VR in \(countdown)…" : "Enter VR", action: beginCountdown)
                             .buttonStyle(PrimaryButtonStyle())
+                            .accessibilityIdentifier("calibration-enter-vr")
                             .disabled(countdown > 0)
                         Text("In VR: gaze to select, dwell to focus, swipe up/down to cycle windows. Tap the upper-right exit icon in either eye or swipe down with three fingers to leave.")
                             .font(Typography.caption)

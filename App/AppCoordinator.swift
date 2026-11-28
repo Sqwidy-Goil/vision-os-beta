@@ -71,6 +71,7 @@ final class AppCoordinator: NSObject, ObservableObject {
 
     func launch(_ module: AppModule) {
         windowManager.open(module)
+        showLauncher = false
         showMessage("\(module.title) opened in the shared scene.")
     }
 
