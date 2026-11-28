@@ -71,6 +71,10 @@ struct PhotosModuleView: View {
             item.loadTransferable(type: Data.self) { result in
                 switch result {
                 case .success(let data):
+                    guard let data else {
+                        DispatchQueue.main.async { self.error = "The selected image could not be loaded." }
+                        return
+                    }
                     if let image = UIImage(data: data) {
                         DispatchQueue.main.async { self.images.append(image) }
                     }
