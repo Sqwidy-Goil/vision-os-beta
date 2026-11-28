@@ -6,7 +6,7 @@ struct CalibrationView: View {
     var onEnter: () -> Void
     var onCancel: () -> Void
 
-    @State private var countdown = 3
+    @State private var countdown = 0
     @State private var timer: Timer?
 
     var body: some View {

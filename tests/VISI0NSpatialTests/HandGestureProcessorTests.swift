@@ -45,8 +45,8 @@ final class HandGestureProcessorTests: XCTestCase {
         guard case .twoHandStarted = processor.process([left, right]) else {
             return XCTFail("Expected two-hand gesture")
         }
-        let movedLeft = sample(thumb: 0.5, index: 0.5, wristX: 0.1)
-        let movedRight = sample(thumb: 0.5, index: 0.5, wristX: 0.7)
+        let movedLeft = sample(thumb: 0.5, index: 0.5, wristX: 0.22)
+        let movedRight = sample(thumb: 0.5, index: 0.5, wristX: 0.58)
         if case .twoHandMoved(let center, let scale, _) = processor.process([movedLeft, movedRight]) {
             XCTAssertEqual(center.x, 0.6, accuracy: 0.001)
             XCTAssertEqual(scale, 0.6, accuracy: 0.001)
