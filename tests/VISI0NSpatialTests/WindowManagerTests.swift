@@ -57,6 +57,7 @@ final class WindowManagerTests: XCTestCase {
         manager.adjustDepth(of: id, by: 100)
         XCTAssertEqual(manager.selectedWindow?.placement.z, -1.1)
         manager.rotateSelected(by: 100)
-        XCTAssertEqual(manager.selectedWindow?.placement.roll, .pi, accuracy: 0.001)
+        let selected = try XCTUnwrap(manager.selectedWindow)
+        XCTAssertEqual(selected.placement.roll, .pi, accuracy: 0.001)
     }
 }
